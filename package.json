@@ -1,0 +1,19 @@
+{
+  "name": "ssmotors-backend",
+  "version": "1.0.0",
+  "description": "ss motors back end to deal with 2-wheeler services/insurances/RC update or modifications",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shivakumarKirigeri641/ssmotors-backend.git"
+  },
+  "author": "Shivakumar, Suhas, Amruta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shivakumarKirigeri641/ssmotors-backend/issues"
+  },
+  "homepage": "https://github.com/shivakumarKirigeri641/ssmotors-backend#readme"
+}
