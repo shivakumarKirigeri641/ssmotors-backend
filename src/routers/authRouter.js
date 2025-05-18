@@ -1,5 +1,4 @@
 const express = require("express");
-const Twowheelers = require("../models/twowheelers");
 const authRouter = express.Router();
 const validateAdminLogin = require("../validations/validateAdminLogin");
 const createJsonToken = require("../utils/createJsonToken");

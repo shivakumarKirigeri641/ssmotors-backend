@@ -4,6 +4,7 @@ const cors = require("cors");
 const connectDB = require("./database/connectDB");
 const cookieParser = require("cookie-parser");
 const authRouter = require("./routers/authRouter");
+const twowheelerRouter = require("./routers/twowheelerRouter");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -14,6 +15,7 @@ app.use(
   })
 );
 app.use("/", authRouter);
+app.use("/", twowheelerRouter);
 connectDB().then(() => {
   console.log("Database connected.");
   app.listen(7777, () => {
