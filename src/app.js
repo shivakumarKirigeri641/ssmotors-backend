@@ -1,6 +1,19 @@
 const express = require("express");
 const app = new express();
+const cors = require("cors");
 const connectDB = require("./database/connectDB");
+const cookieParser = require("cookie-parser");
+const authRouter = require("./routers/authRouter");
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:1234",
+    credentials: true,
+  })
+);
+app.use("/", authRouter);
 connectDB().then(() => {
   console.log("Database connected.");
   app.listen(7777, () => {
