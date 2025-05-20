@@ -1,5 +1,4 @@
 const express = require("express");
-const twowheelers = require("../models/twowheelers");
 const TwowheelerModels = require("../models/TwowheelerModels");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
