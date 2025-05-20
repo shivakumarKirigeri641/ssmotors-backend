@@ -5,6 +5,7 @@ const twowheelerVariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
 const { default: mongoose } = require("mongoose");
 const twowheelerRouter = express.Router();
+const VehicleInspectionCheckList = require("../models/vehicleInspectionCheckList");
 
 //get brands
 twowheelerRouter.get("/getbrands", async (req, res) => {
@@ -65,4 +66,26 @@ twowheelerRouter.get("/getvariants", async (req, res) => {
   }
 });
 
+twowheelerRouter.post("/temp", async (req, res) => {
+  const servicedata = new VehicleInspectionCheckList({
+    inspectionName: "Vehicle inspection service",
+    inspectionLists: [
+      "Lights (HL)",
+      "Lights (TL)",
+      "Lights (BL)",
+      "Lights (Win)",
+      "Lights (Pilot)",
+      "Battery",
+      "Toolkit",
+      "Rear view mirror (L)",
+      "Rear view mirror (R)",
+      "Dents",
+      "Scratches",
+      "Choke cap",
+      "Accessories",
+    ],
+  });
+  const result = await servicedata.save();
+  res.send("done");
+});
 module.exports = twowheelerRouter;
