@@ -8,6 +8,10 @@ const twowheelerRouter = express.Router();
 
 const PartsAndAccessories = require("../models/servicesInformation/partsAndAccessories");
 const ServiceDeliveryDetails = require("../models/servicesInformation/serviceDeliveryDetails");
+const AfterServiceComplaints = require("../models/servicesInformation/afterServiceComplaints");
+const AfterServiceComplaintsStruture = require("../models/servicesInformation/afterServiceComplaintsStruture");
+const PaidInformation = require("../models/servicesInformation/paidInformation");
+const PartsAndAccessoryStructure = require("../models/servicesInformation/partsAndAccessoryStructure");
 
 //get brands
 twowheelerRouter.get("/getbrands", checkAuthentication, async (req, res) => {
@@ -70,13 +74,27 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
 
 //temp api
 twowheelerRouter.post("/temp", async (req, res) => {
+  //682ccc1faa56267864d2e10a
   //682d5728bd678e6e5496d6ae
-  const data = new ServiceDeliveryDetails({
-    serviceDataId: "682d5728bd678e6e5496d6ae",
-    comments: "Engine oil change in next service",
+  const sub1 = new PartsAndAccessoryStructure({
+    itemName: "switch",
+    itemDescription: "Main switch for head light to be replaced.",
+    price: 350,
+    stateTax: 18,
+    centralTax: 18,
   });
-  const result = await data.save();
-  res.send(data);
-  //variantId: "682c36886a0703b1b23f71fe",
+  const sub2 = new PartsAndAccessoryStructure({
+    itemName: "switch",
+    itemDescription: "Main switch for head light to be replaced.",
+    price: 350,
+    stateTax: 18,
+    centralTax: 18,
+  });
+  const data2 = new PartsAndAccessories({
+    serviceDataId: "682d5728bd678e6e5496d6ae",
+    pandAList: [sub2],
+  });
+  await data2.save();
+  res.send(data2);
 });
 module.exports = twowheelerRouter;

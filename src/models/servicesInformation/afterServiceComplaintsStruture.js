@@ -22,7 +22,7 @@ const afterServiceComplaintsStrutureSchema = mongoose.Schema({
   amount: {
     type: Number,
     min: 0,
-    max: 25000,
+    max: 100000,
     required: true,
     default: 0,
   },

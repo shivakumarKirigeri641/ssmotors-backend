@@ -20,14 +20,14 @@ const partsAndAccessoryStructureSchema = mongoose.Schema({
     required: true,
     default: 0,
   },
-  s_tax: {
+  stateTax: {
     type: Number,
     min: 0,
     max: 100,
     required: true,
     default: 0,
   },
-  c_tax: {
+  centralTax: {
     type: Number,
     min: 0,
     max: 100,

@@ -8,12 +8,12 @@ const serviceDeliveryDetailsSchema = mongoose.Schema({
   expectedDeliveryDate: {
     type: Date,
     required: true,
-    default: new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000),
+    default: new Date(),
   },
   modifiedDeliveryDate: {
     type: Date,
     required: true,
-    default: new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000),
+    default: new Date(),
   },
   comments: {
     type: String,

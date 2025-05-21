@@ -15,7 +15,7 @@ const nextServiceDetailsSchema = mongoose.Schema({
   dateForNextService: {
     type: Date,
     required: true,
-    default: new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000),
+    default: new Date(),
   },
 });
 const NextServiceDetails = mongoose.model(

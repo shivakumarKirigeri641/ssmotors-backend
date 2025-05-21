@@ -5,14 +5,14 @@ const paidInformationSchema = mongoose.Schema({
     ref: "ServiceData",
     required: true,
   },
-  amountpaid: {
+  cashPay: {
     type: Number,
     required: true,
     min: 0,
     max: 100000,
     default: 0,
   },
-  cashPay: {
+  onlinePay: {
     type: Number,
     required: true,
     min: 0,
