@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const AfterServiceComplaintsStruture = require("../servicesInformation/afterServiceComplaintsStruture");
 const afterServiceComplaintsSchema = mongoose.Schema({
   serviceDataId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -7,7 +6,7 @@ const afterServiceComplaintsSchema = mongoose.Schema({
     required: true,
   },
   complaints: {
-    type: [AfterServiceComplaintsStruture.Schema],
+    type: [String],
   },
 });
 const AfterServiceComplaints = mongoose.model(

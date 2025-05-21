@@ -3,15 +3,8 @@ const TwowheelerModels = require("../models/TwowheelerModels");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
-const { default: mongoose, mongo } = require("mongoose");
-const twowheelerRouter = express.Router();
-
-const PartsAndAccessories = require("../models/servicesInformation/partsAndAccessories");
-const ServiceDeliveryDetails = require("../models/servicesInformation/serviceDeliveryDetails");
 const AfterServiceComplaints = require("../models/servicesInformation/afterServiceComplaints");
-const AfterServiceComplaintsStruture = require("../models/servicesInformation/afterServiceComplaintsStruture");
-const PaidInformation = require("../models/servicesInformation/paidInformation");
-const PartsAndAccessoryStructure = require("../models/servicesInformation/partsAndAccessoryStructure");
+const twowheelerRouter = express.Router();
 
 //get brands
 twowheelerRouter.get("/getbrands", checkAuthentication, async (req, res) => {
@@ -74,27 +67,14 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
 
 //temp api
 twowheelerRouter.post("/temp", async (req, res) => {
-  //682ccc1faa56267864d2e10a
-  //682d5728bd678e6e5496d6ae
-  const sub1 = new PartsAndAccessoryStructure({
-    itemName: "switch",
-    itemDescription: "Main switch for head light to be replaced.",
-    price: 350,
-    stateTax: 18,
-    centralTax: 18,
+  const data = new AfterServiceComplaints({
+    serviceDataId: "682ccc1faa56267864d2e10a",
+    complaints: [
+      "Complete key needs to be replaced.",
+      "Rod is shaking on riding",
+    ],
   });
-  const sub2 = new PartsAndAccessoryStructure({
-    itemName: "switch",
-    itemDescription: "Main switch for head light to be replaced.",
-    price: 350,
-    stateTax: 18,
-    centralTax: 18,
-  });
-  const data2 = new PartsAndAccessories({
-    serviceDataId: "682d5728bd678e6e5496d6ae",
-    pandAList: [sub2],
-  });
-  await data2.save();
-  res.send(data2);
+  await data.save();
+  res.send("data2");
 });
 module.exports = twowheelerRouter;
