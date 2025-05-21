@@ -8,7 +8,7 @@ const serviceDataSchema = mongoose.Schema({
   vehicleServiceTimeIn: {
     type: Date,
     required: true,
-    default: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+    default: new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000),
   },
   teamAllocated: {
     type: Boolean,
@@ -34,6 +34,7 @@ const serviceDataSchema = mongoose.Schema({
   serviceStatus: {
     type: Number,
     required: true,
+    default: 0,
     min: 0,
     max: 2,
   },

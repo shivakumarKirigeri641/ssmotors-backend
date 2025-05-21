@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 const vehicleInspectionCheckListSchema = mongoose.Schema({
+  serviceDataId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ServiceData",
+    required: true,
+  },
   inspectionName: {
     type: String,
     unique: true,

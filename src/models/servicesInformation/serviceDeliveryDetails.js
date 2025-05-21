@@ -8,12 +8,12 @@ const serviceDeliveryDetailsSchema = mongoose.Schema({
   expectedDeliveryDate: {
     type: Date,
     required: true,
-    default: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+    default: new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000),
   },
   modifiedDeliveryDate: {
     type: Date,
     required: true,
-    default: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+    default: new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000),
   },
   comments: {
     type: String,

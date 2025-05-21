@@ -5,10 +5,17 @@ const twowheelerVariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
 const { default: mongoose } = require("mongoose");
 const twowheelerRouter = express.Router();
-const VehicleInspectionCheckList = require("../models/vehicleInspectionCheckList");
+const ExpectedServiceCost = require("../models/servicesInformation/expectedServiceCost");
+const PriceStructure = require("../models/servicesInformation/priceStructure");
+const MechanicObservations = require("../models/servicesInformation/mechanicObservations");
+const NextServiceDetails = require("../models/servicesInformation/nextServiceDetails");
+const PaidInformation = require("../models/servicesInformation/paidInformation");
+const PartsAndAccessories = require("../models/servicesInformation/partsAndAccessories");
+const PartsAndAccessoryStructure = require("../models/servicesInformation/partsAndAccessoryStructure");
+const ServiceDeliveryDetails = require("../models/servicesInformation/serviceDeliveryDetails");
 
 //get brands
-twowheelerRouter.get("/getbrands", async (req, res) => {
+twowheelerRouter.get("/getbrands", checkAuthentication, async (req, res) => {
   try {
     const data = await TwowheelerBrands.find({});
     res
@@ -20,7 +27,7 @@ twowheelerRouter.get("/getbrands", async (req, res) => {
 });
 
 //getmodels based on brand
-twowheelerRouter.get("/getmodels", async (req, res) => {
+twowheelerRouter.get("/getmodels", checkAuthentication, async (req, res) => {
   try {
     const brandName = req.body.brandName;
     if (!brandName) {
@@ -40,7 +47,7 @@ twowheelerRouter.get("/getmodels", async (req, res) => {
 });
 
 //getmodels based on brand & model
-twowheelerRouter.get("/getvariants", async (req, res) => {
+twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
   try {
     const brandName = req.body.brandName;
     const modelName = req.body.modelName;
@@ -66,26 +73,14 @@ twowheelerRouter.get("/getvariants", async (req, res) => {
   }
 });
 
+//temp api
 twowheelerRouter.post("/temp", async (req, res) => {
-  const servicedata = new VehicleInspectionCheckList({
-    inspectionName: "Vehicle inspection service",
-    inspectionLists: [
-      "Lights (HL)",
-      "Lights (TL)",
-      "Lights (BL)",
-      "Lights (Win)",
-      "Lights (Pilot)",
-      "Battery",
-      "Toolkit",
-      "Rear view mirror (L)",
-      "Rear view mirror (R)",
-      "Dents",
-      "Scratches",
-      "Choke cap",
-      "Accessories",
-    ],
+  //682ccc1faa56267864d2e10a
+  const data = new ServiceDeliveryDetails({
+    serviceDataId: "682ccc1faa56267864d2e10a",
+    comments: "Check for few days on ride",
   });
-  const result = await servicedata.save();
-  res.send("done");
+  const result = await data.save();
+  res.send(data);
 });
 module.exports = twowheelerRouter;

@@ -1,25 +1,5 @@
 const mongoose = require("mongoose");
-const priceStructureSchema = mongoose.Schema({
-  Name: {
-    type: String,
-    minLength: 3,
-    unique: true,
-    maxLength: 100,
-    required: true,
-  },
-  amount: {
-    type: Number,
-    min: 0,
-    max: 25000,
-    required: true,
-    default: 0,
-  },
-  comments: {
-    type: String,
-    minLength: 0,
-    maxLength: 200,
-  },
-});
+const PriceStructure = require("../servicesInformation/priceStructure");
 const expectedServiceCostSchema = mongoose.Schema({
   serviceDataId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -27,7 +7,7 @@ const expectedServiceCostSchema = mongoose.Schema({
     required: true,
   },
   jobList: {
-    type: [priceStructureSchema.Schema],
+    type: [PriceStructure.Schema],
     required: true,
   },
   comments: {

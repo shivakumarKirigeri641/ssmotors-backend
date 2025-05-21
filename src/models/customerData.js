@@ -11,7 +11,7 @@ const customerDataSchema = mongoose.Schema({
     required: true,
     ref: "VehicleData",
   },
-  primayMobileNumber: {
+  primaryMobileNumber: {
     type: String,
     required: true,
     minLength: 10,
@@ -50,5 +50,5 @@ const customerDataSchema = mongoose.Schema({
     },
   },
 });
-const VehicleData = mongoose.model("VehicleData", customerDataSchema);
-module.exports = VehicleData;
+const CustomerData = mongoose.model("CustomerData", customerDataSchema);
+module.exports = CustomerData;

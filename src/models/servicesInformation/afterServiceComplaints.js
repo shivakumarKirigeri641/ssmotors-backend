@@ -15,7 +15,7 @@ const afterServiceComplaintsStrutureSchema = mongoose.Schema({
   },
   resolveDescription: {
     type: String,
-    required: true,
+    default: "",
     minLength: 0,
     maxLength: 200,
   },
@@ -34,7 +34,7 @@ const afterServiceComplaintsSchema = mongoose.Schema({
     required: true,
   },
   complaints: {
-    type: [afterServiceComplaintsStrutureSchema.Schema],
+    type: [afterServiceComplaintsStrutureSchema],
   },
 });
 const AfterServiceComplaints = mongoose.model(
