@@ -17,6 +17,7 @@ dummydataRouter.post("/temp", async (req, res) => {
           owner: getCustomerData(vehicleData.vairantId),
           registration: vehicleData.vehicleNumber,
           serviceDate: startDate,
+          kmDrivenBeforeService: getRandomNumber(2000, 3000),
         });
         startDate.setDate(startDate.getDate() + 1);
       }
