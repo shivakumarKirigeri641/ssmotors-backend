@@ -5,3 +5,4 @@ const getVariantId = async () => {
   const data = await Twowheelervariants.find({});
   return data[getRandomNumber(0, data.length)]._id;
 };
+module.exports = getVariantId;

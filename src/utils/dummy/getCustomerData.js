@@ -11,3 +11,4 @@ const getCustomerData = (vehicleidentification) => {
     vehicleId: vehicleidentification,
   });
 };
+module.exports = getCustomerData;

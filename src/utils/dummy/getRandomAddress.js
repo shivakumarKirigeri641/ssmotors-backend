@@ -9,17 +9,6 @@ const getRandomAddress = () => {
     "Lajpat Nagar",
     "BTM Layout",
   ];
-  const states = [
-    "Maharashtra",
-    "Karnataka",
-    "Tamil Nadu",
-    "West Bengal",
-    "Delhi",
-    "Telangana",
-    "Uttar Pradesh",
-    "Rajasthan",
-    "Gujarat",
-  ];
   const pinCodes = [
     "560001",
     "400001",
@@ -34,7 +23,7 @@ const getRandomAddress = () => {
 
   const street = streets[Math.floor(Math.random() * streets.length)];
   const city = "Bangalore";
-  const state = states[Math.floor(Math.random() * states.length)];
+  const state = "Karnataka";
   const pin = pinCodes[Math.floor(Math.random() * pinCodes.length)];
   const houseNumber = Math.floor(Math.random() * 200) + 1;
 
