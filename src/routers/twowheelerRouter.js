@@ -4,6 +4,7 @@ const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
 const AfterServiceComplaints = require("../models/servicesInformation/afterServiceComplaints");
+const AfterServicepaidInformation = require("../models/servicesInformation/afterServicePayInformation");
 const twowheelerRouter = express.Router();
 
 //get brands
@@ -63,18 +64,5 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
   } catch (err) {
     res.status(401).json({ status: "Failed", message: err.message });
   }
-});
-
-//temp api
-twowheelerRouter.post("/temp", async (req, res) => {
-  const data = new AfterServiceComplaints({
-    serviceDataId: "682ccc1faa56267864d2e10a",
-    complaints: [
-      "Complete key needs to be replaced.",
-      "Rod is shaking on riding",
-    ],
-  });
-  await data.save();
-  res.send("data2");
 });
 module.exports = twowheelerRouter;

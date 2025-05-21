@@ -5,6 +5,7 @@ const connectDB = require("./database/connectDB");
 const cookieParser = require("cookie-parser");
 const authRouter = require("./routers/authRouter");
 const twowheelerRouter = require("./routers/twowheelerRouter");
+const dummydataRouter = require("./routers/dummydatarouter");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -16,6 +17,7 @@ app.use(
 );
 app.use("/", authRouter);
 app.use("/", twowheelerRouter);
+app.use("/", dummydataRouter);
 connectDB().then(() => {
   console.log("Database connected.");
   app.listen(7777, () => {
