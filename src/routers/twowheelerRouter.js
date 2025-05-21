@@ -3,11 +3,11 @@ const TwowheelerModels = require("../models/TwowheelerModels");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
-const { default: mongoose } = require("mongoose");
+const AfterServiceComplaints = require("../models/servicesInformation/afterServiceComplaints");
 const twowheelerRouter = express.Router();
 
 //get brands
-twowheelerRouter.get("/getbrands", async (req, res) => {
+twowheelerRouter.get("/getbrands", checkAuthentication, async (req, res) => {
   try {
     const data = await TwowheelerBrands.find({});
     res
@@ -19,7 +19,7 @@ twowheelerRouter.get("/getbrands", async (req, res) => {
 });
 
 //getmodels based on brand
-twowheelerRouter.get("/getmodels", async (req, res) => {
+twowheelerRouter.get("/getmodels", checkAuthentication, async (req, res) => {
   try {
     const brandName = req.body.brandName;
     if (!brandName) {
@@ -39,7 +39,7 @@ twowheelerRouter.get("/getmodels", async (req, res) => {
 });
 
 //getmodels based on brand & model
-twowheelerRouter.get("/getvariants", async (req, res) => {
+twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
   try {
     const brandName = req.body.brandName;
     const modelName = req.body.modelName;
@@ -65,4 +65,16 @@ twowheelerRouter.get("/getvariants", async (req, res) => {
   }
 });
 
+//temp api
+twowheelerRouter.post("/temp", async (req, res) => {
+  const data = new AfterServiceComplaints({
+    serviceDataId: "682ccc1faa56267864d2e10a",
+    complaints: [
+      "Complete key needs to be replaced.",
+      "Rod is shaking on riding",
+    ],
+  });
+  await data.save();
+  res.send("data2");
+});
 module.exports = twowheelerRouter;
