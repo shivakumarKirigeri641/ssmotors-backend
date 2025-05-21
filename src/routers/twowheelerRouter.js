@@ -3,15 +3,10 @@ const TwowheelerModels = require("../models/TwowheelerModels");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
-const { default: mongoose } = require("mongoose");
+const { default: mongoose, mongo } = require("mongoose");
 const twowheelerRouter = express.Router();
-const ExpectedServiceCost = require("../models/servicesInformation/expectedServiceCost");
-const PriceStructure = require("../models/servicesInformation/priceStructure");
-const MechanicObservations = require("../models/servicesInformation/mechanicObservations");
-const NextServiceDetails = require("../models/servicesInformation/nextServiceDetails");
-const PaidInformation = require("../models/servicesInformation/paidInformation");
+
 const PartsAndAccessories = require("../models/servicesInformation/partsAndAccessories");
-const PartsAndAccessoryStructure = require("../models/servicesInformation/partsAndAccessoryStructure");
 const ServiceDeliveryDetails = require("../models/servicesInformation/serviceDeliveryDetails");
 
 //get brands
@@ -75,12 +70,13 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
 
 //temp api
 twowheelerRouter.post("/temp", async (req, res) => {
-  //682ccc1faa56267864d2e10a
+  //682d5728bd678e6e5496d6ae
   const data = new ServiceDeliveryDetails({
-    serviceDataId: "682ccc1faa56267864d2e10a",
-    comments: "Check for few days on ride",
+    serviceDataId: "682d5728bd678e6e5496d6ae",
+    comments: "Engine oil change in next service",
   });
   const result = await data.save();
   res.send(data);
+  //variantId: "682c36886a0703b1b23f71fe",
 });
 module.exports = twowheelerRouter;

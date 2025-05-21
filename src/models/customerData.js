@@ -7,7 +7,7 @@ const customerDataSchema = mongoose.Schema({
     maxLength: 50,
   },
   vehicleId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: "VehicleData",
   },

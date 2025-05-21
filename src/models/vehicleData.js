@@ -4,10 +4,10 @@ const vehicleDataSchema = mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    minLength: 10,
+    minLength: 8,
     maxLength: 15,
     validate(value) {
-      if (value.length < 10 || value.length > 15) {
+      if (value.length < 8 || value.length > 15) {
         throw new Error("Vehicle number is invalid!");
       }
     },
