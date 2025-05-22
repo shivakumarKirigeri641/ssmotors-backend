@@ -14,8 +14,8 @@ const twowheelerVariantsSchema = mongoose.Schema({
     required: true,
   },
 });
-const TwoWheelerVariants = mongoose.model(
-  "TwoWheelerVariants",
+const Twowheelervariants = mongoose.model(
+  "Twowheelervariants",
   twowheelerVariantsSchema
 );
-module.exports = TwoWheelerVariants;
+module.exports = Twowheelervariants;

@@ -4,7 +4,7 @@ const ServiceData = require("../models/servicesInformation/serviceData");
 const VehicleData = require("../models/vehicleData");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const TwowheelerModels = require("../models/TwowheelerModels");
-const twowheelerVariants = require("../models/twowheelervariants");
+const TwoWheelerVariants = require("../models/twowheelervariants");
 const serviceRouter = express.Router();
 
 //get servicedata with skipi & limits
@@ -35,13 +35,10 @@ serviceRouter.get(
   "/admin/feed/getservicedvehicles",
   checkAuthentication,
   async (req, res) => {
+    let data = null;
     try {
-      //const data = await VehicleData.find({}).populate("variantId", "Name");
-      //const datavariant = await twowheelerVariants.find({});
-      const result = await twowheelerVariants.updateMany(
-        { Name: { $exists: true } },
-        { $rename: { Name: "name" } }
-      );
+      data = await ServiceData.find({}).populate("variantId", "variantName");
+      //data = await TwoWheelerVariants.find({});
       res.status(200).json({
         status: "Ok",
         message: "Brands fetched successfully",
