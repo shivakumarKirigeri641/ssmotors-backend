@@ -7,7 +7,7 @@ const twowheelerModelsSchema = mongoose.Schema({
   },
   brandId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "TwoWheelerBrands",
+    ref: "TwowheelerBrands",
     required: true,
   },
 });

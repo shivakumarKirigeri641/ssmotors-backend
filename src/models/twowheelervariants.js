@@ -10,7 +10,7 @@ const twowheelerVariantsSchema = mongoose.Schema({
   },
   modelId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "TwowheelerModels",
+    ref: "twowheelerModels",
     required: true,
   },
 });
