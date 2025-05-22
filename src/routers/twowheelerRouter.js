@@ -26,7 +26,9 @@ twowheelerRouter.get("/getmodels", checkAuthentication, async (req, res) => {
     if (!brandName) {
       throw new Error("Invalid brand name!");
     }
-    const resultbranddata = await TwowheelerBrands.findOne({ Name: brandName });
+    const resultbranddata = await TwowheelerBrands.findOne({
+      brandName: brandName,
+    });
     if (!resultbranddata) {
       throw new Error("Brand information not found!");
     }
@@ -47,11 +49,15 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
     if (!brandName || !modelName) {
       throw new Error("Invalid brand name!");
     }
-    const resultbranddata = await TwowheelerBrands.findOne({ Name: brandName });
+    const resultbranddata = await TwowheelerBrands.findOne({
+      brandName: brandName,
+    });
     if (!resultbranddata) {
       throw new Error("Brand information not found!");
     }
-    const resultmodeldata = await TwowheelerModels.findOne({ Name: modelName });
+    const resultmodeldata = await TwowheelerModels.findOne({
+      modelName: modelName,
+    });
     if (!resultmodeldata) {
       throw new Error("Model information not found!");
     }

@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
 const twowheelerModelsSchema = mongoose.Schema({
-  Name: {
+  modelName: {
     type: String,
-    unique: true,
     required: true,
     minLength: 3,
   },

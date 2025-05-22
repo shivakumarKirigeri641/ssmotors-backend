@@ -1,6 +1,9 @@
 const express = require("express");
 const getExpectedDeliveryDate = require("../utils/dummy/getExpectedDeliveryDate");
+const TwowheelerModels = require("../models/TwowheelerModels");
+const twowheelerVariants = require("../models/twowheelervariants");
 const getRandomNumber = require("../utils/dummy/getRandomNumber");
+const fs = require("fs").promises;
 const getServiceDeliveryDetails = require("../utils/dummy/getServiceDeliveryDetails");
 const getRandomBikeItem = require("../utils/dummy/getRandomBikeItem");
 const getCustomerComplaints = require("../utils/dummy/getCustomerComplaints");
@@ -19,6 +22,7 @@ const NextServiceDetails = require("../models/servicesInformation/nextServiceDet
 const MechanicObservations = require("../models/servicesInformation/mechanicObservations");
 const CustomerData = require("../models/customerData");
 const ServiceData = require("../models/servicesInformation/serviceData");
+const TwowheelerBrands = require("../models/TwowheelerBrands");
 const Currentstdserviceschecklists = require("../models/servicesInformation/currentStdServicesCheckList");
 const ExpectedServiceCosts = require("../models/servicesInformation/expectedServiceCost");
 const StandardServicesCheckList = require("../models/standardServicesCheckList");
@@ -32,13 +36,13 @@ const { default: mongoose } = require("mongoose");
 const dummydataRouter = express.Router();
 dummydataRouter.post("/temp", async (req, res) => {
   try {
-    let startDate = new Date(2024, 11, 1);
+    startDate = new Date(2024, 0, 1);
     let today = new Date();
     today = today.setDate(today.getDate() - 5);
     let bikeArray = [];
     let currentDate = new Date(startDate);
     //generate vehicles & customer detials
-    for (let i = 0; i < 301; i++) {
+    for (let i = 0; i < 201; i++) {
       const vehicleData = await getVehicleData();
       let mykmdriven = getRandomNumber(2000, 3000);
       let buffer = 2500;
@@ -57,7 +61,7 @@ dummydataRouter.post("/temp", async (req, res) => {
     }
 
     //now got full vehicle details list of 300 count
-    startDate = new Date(2024, 11, 1);
+    startDate = new Date(2024, 0, 1);
     today = new Date();
     today = today.setDate(today.getDate() - 5);
     currentDate = new Date(startDate);
@@ -249,51 +253,122 @@ dummydataRouter.delete("/deletecollections", async (req, res) => {
   await ServiceDeliveryDetails.collection.drop();
   res.send("deleted");
 });
-dummydataRouter.post("/temp1", async (req, res) => {
+
+dummydataRouter.post("/insert-brand-model-variant", async (req, res) => {
   try {
-    let startDate = new Date(2023, 11, 1);
-    let today = new Date();
-    today = today.setDate(today.getDate() - 5);
-    let bikeArray = [];
-    let currentDate = new Date(startDate);
-    //generate vehicles & customer detials
-    /*for (let i = 0; i < 301; i++) {
-      const vehicleData = await getVehicleData();
-      let mykmdriven = getRandomNumber(2000, 3000);
-      let buffer = 2500;
-      let mykmdrivennextservice = Number(mykmdriven) + Number(buffer);
-      if (bikeArray.includes((x) => x.registration)) continue;
-      bikeArray.push({
-        owner: await getCustomerData(vehicleData.variantId),
-        variantidentification: vehicleData.variantId,
-        registration: vehicleData.vehicleNumber,
-        serviceDate: currentDate,
-        nextserviceDate: getNextServiceDate(currentDate),
-        kmDriven: mykmdriven,
-        kmTobeDrivenForNextService: mykmdrivennextservice,
-        firstTimeService: true,
+    /*const data = await fs.readFile("./bikes.json", "utf-8");
+    const rawData = JSON.parse(data);
+    for (let i = 0; i < rawData.length; i++) {
+      const brand = new TwowheelerBrands({
+        brandName: rawData[i].Name,
+        logourl: rawData[i].logourl,
       });
+      await brand.save();
     }*/
-    console.log(currentDate);
-    const vehicleData = await getVehicleData();
-    let mykmdriven = getRandomNumber(2000, 3000);
-    let buffer = 2500;
-    let mykmdrivennextservice = Number(mykmdriven) + Number(buffer);
-    bikeArray.push({
-      owner: await getCustomerData(vehicleData.variantId),
-      variantidentification: vehicleData.variantId,
-      registration: vehicleData.vehicleNumber,
-      serviceDate: currentDate,
-      nextserviceDate: getNextServiceDate(currentDate),
-      kmDriven: mykmdriven,
-      kmTobeDrivenForNextService: mykmdrivennextservice,
-      firstTimeService: true,
-    });
-    console.log(currentDate);
+    const brandresult = await TwowheelerBrands.find({});
+    const data = await fs.readFile("./bikes.json", "utf-8");
+    const rawData = JSON.parse(data);
+
+    for (let i = 0; i < brandresult.length; i++) {
+      const _id = brandresult[i]._id;
+      console.log("processing brand:", brandresult[i].brandName);
+      for (let j = 0; j < rawData.length; j++) {
+        if (rawData[j].Name === brandresult[i].brandName) {
+          //bikes
+          for (let k = 0; k < rawData[j].bikeModelList.length; k++) {
+            const modeldata = new TwowheelerModels({
+              modelName: rawData[j].bikeModelList[k].Name,
+              brandId: _id,
+            });
+            const resultmodeldata = await modeldata.save();
+            for (
+              let l = 0;
+              l < rawData[j].bikeModelList[k].Variants.length;
+              l++
+            ) {
+              const variantdata = new twowheelerVariants({
+                variantName: rawData[j].bikeModelList[k].Variants[l].Name,
+                photourl: rawData[j].bikeModelList[k].photourl,
+                modelId: resultmodeldata._id,
+              });
+              await variantdata.save();
+            }
+          }
+          //electric-scooter
+          if (
+            rawData[j].electricscootermodelList &&
+            0 < rawData[j].electricscootermodelList.length
+          ) {
+            for (
+              let k = 0;
+              k < rawData[j].electricscootermodelList.length;
+              k++
+            ) {
+              const ismodelpresent = await TwowheelerModels.findOne({
+                modelName: rawData[j].electricscootermodelList[k].Name,
+              });
+              if (ismodelpresent) {
+                continue;
+              }
+              const modeldata = new TwowheelerModels({
+                modelName: rawData[j].electricscootermodelList[k].Name,
+                brandId: _id,
+              });
+              const resultmodeldata = await modeldata.save();
+              for (
+                let l = 0;
+                l < rawData[j].electricscootermodelList[k].Variants.length;
+                l++
+              ) {
+                const variantdata = new twowheelerVariants({
+                  variantName:
+                    rawData[j].electricscootermodelList[k].Variants[l].Name,
+                  photourl: rawData[j].electricscootermodelList[k].photourl,
+                  modelId: resultmodeldata._id,
+                });
+                await variantdata.save();
+              }
+            }
+          }
+          //scootermodelList
+          if (
+            rawData[j].scootermodelList &&
+            0 < rawData[j].scootermodelList.length
+          ) {
+            for (let k = 0; k < rawData[j].scootermodelList.length; k++) {
+              const ismodelpresent = await TwowheelerModels.findOne({
+                modelName: rawData[j].scootermodelList[k].Name,
+              });
+              if (ismodelpresent) {
+                continue;
+              }
+              const modeldata = new TwowheelerModels({
+                modelName: rawData[j].scootermodelList[k].Name,
+                brandId: _id,
+              });
+              const resultmodeldata = await modeldata.save();
+              for (
+                let l = 0;
+                l < rawData[j].scootermodelList[k].Variants.length;
+                l++
+              ) {
+                const variantdata = new twowheelerVariants({
+                  variantName: rawData[j].scootermodelList[k].Variants[l].Name,
+                  photourl: rawData[j].scootermodelList[k].photourl,
+                  modelId: resultmodeldata._id,
+                });
+                await variantdata.save();
+              }
+            }
+          }
+          break;
+        }
+      }
+    }
     res.status(200).json({
       status: "Ok",
       message: "success",
-      data: bikeArray[0].serviceDate,
+      data: brandresult,
     });
   } catch (err) {
     res.status(401).json({ status: "Failed", message: err.message });

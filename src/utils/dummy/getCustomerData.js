@@ -4,7 +4,7 @@ const getRandomPhoneNumber = require("./getRandomPhoneNumber");
 const getRandomAddress = require("./getRandomAddress");
 const getCustomerData = (vehicleidentification) => {
   return new CustomerData({
-    name: getRandomNames(),
+    customerName: getRandomNames(),
     primaryMobileNumber: getRandomPhoneNumber(),
     preferredMobileNumber: getRandomPhoneNumber(),
     address: getRandomAddress(),
