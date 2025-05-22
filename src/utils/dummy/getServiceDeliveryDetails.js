@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const ServiceDeliveryDetails = require("../../models/servicesInformation/serviceDeliveryDetails");
 const getExpectedDeliveryDate = require("./getExpectedDeliveryDate");
 const getRandomNumber = require("./getRandomNumber");

@@ -11,6 +11,6 @@ const getVehicleNumber = () => {
     letters.charAt(Math.floor(Math.random() * 26));
   const number = String(Math.floor(Math.random() * 9999) + 1).padStart(4, "0");
 
-  return `${stateCode} ${rtoCode} ${randomLetters} ${number}`;
+  return `${stateCode}${rtoCode}${randomLetters}${number}`;
 };
 module.exports = getVehicleNumber;

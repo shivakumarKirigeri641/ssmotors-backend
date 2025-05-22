@@ -4,7 +4,7 @@ const getVariantId = require("../dummy/getVariantId");
 const getVehicleData = async () => {
   return new VehicleData({
     vehicleNumber: getVehicleNumber(),
-    vairantId: await getVariantId(),
+    variantId: await getVariantId(),
   });
 };
 module.exports = getVehicleData;
