@@ -32,7 +32,7 @@ const { default: mongoose } = require("mongoose");
 const dummydataRouter = express.Router();
 dummydataRouter.post("/temp", async (req, res) => {
   try {
-    let startDate = new Date(2023, 11, 1);
+    let startDate = new Date(2024, 11, 1);
     let today = new Date();
     today = today.setDate(today.getDate() - 5);
     let bikeArray = [];
@@ -57,7 +57,7 @@ dummydataRouter.post("/temp", async (req, res) => {
     }
 
     //now got full vehicle details list of 300 count
-    startDate = new Date(2023, 11, 1);
+    startDate = new Date(2024, 11, 1);
     today = new Date();
     today = today.setDate(today.getDate() - 5);
     currentDate = new Date(startDate);
@@ -164,7 +164,7 @@ dummydataRouter.post("/temp", async (req, res) => {
           //customer complaints
           const custcomplaints = new CustomerComplaints({
             serviceDataId: insertedserviceData._id,
-            complaints: getCustomerComplaints(6),
+            complaints: getCustomerComplaints(getRandomNumber(0, 6)),
           });
           const insertedcustcomplaints = await custcomplaints.save();
           console.log("insertedcustcomplaints");

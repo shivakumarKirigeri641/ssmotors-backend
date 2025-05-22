@@ -2,7 +2,9 @@ const express = require("express");
 const checkAuthentication = require("../routers/checkAuthentication");
 const ServiceData = require("../models/servicesInformation/serviceData");
 const VehicleData = require("../models/vehicleData");
-const Twowheelervariants = require("../models/twowheelervariants");
+const TwowheelerBrands = require("../models/TwowheelerBrands");
+const TwowheelerModels = require("../models/TwowheelerModels");
+const twowheelerVariants = require("../models/twowheelervariants");
 const serviceRouter = express.Router();
 
 //get servicedata with skipi & limits
@@ -34,6 +36,12 @@ serviceRouter.get(
   checkAuthentication,
   async (req, res) => {
     try {
+      //const data = await VehicleData.find({}).populate("variantId", "Name");
+      //const datavariant = await twowheelerVariants.find({});
+      const result = await twowheelerVariants.updateMany(
+        { Name: { $exists: true } },
+        { $rename: { Name: "name" } }
+      );
       res.status(200).json({
         status: "Ok",
         message: "Brands fetched successfully",
