@@ -40,39 +40,9 @@ serviceRouter.get(
   async (req, res) => {
     let data = null;
     try {
-      let vehicleidlist = await ServiceData.distinct("vehicleId");
-      /*data = await ServiceData.findOne({
-        vehicleId: vehicleidlist[0],
-      }).populate({
-        path: "vehicleId",
-        populate: {
-          path: "variantId",
-          populate: {
-            path: "modelId",
-            populate: {
-              path: "brandId",
-              select: "brandName",
-            },
-          },
-        },
-      });*/
-      /*data = await ServiceData.findOne({
-        vehicleId: vehicleidlist[0],
-      }).populate({
-        path: "vehicleId",
-        select: "vehicleId customerName",
-      });
-      res.status(200).json({
-        status: "Ok",
-        message: "Brands fetched successfully",
-        data: data,
-      });*/
-      let list = await CustomerData.find({});
-      for (let i = 0; i < list.length; i++) {
-        list[i].customerName = getRandomNames();
-        await list[i].save();
-      }
-      res.send("test");
+      const list = await VehicleData.collection.distinct("_id");
+      data = await ServiceData.findOne({ vehicleId: list[1] });
+      res.status(200).json({ status: "Ok", data });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
     }

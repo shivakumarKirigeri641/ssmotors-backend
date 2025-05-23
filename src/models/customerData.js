@@ -6,11 +6,6 @@ const customerDataSchema = mongoose.Schema({
     minLength: 3,
     maxLength: 50,
   },
-  vehicleId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: "VehicleData",
-  },
   primaryMobileNumber: {
     type: String,
     required: true,

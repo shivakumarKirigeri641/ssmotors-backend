@@ -17,6 +17,11 @@ const vehicleDataSchema = mongoose.Schema({
     required: true,
     ref: "Twowheelervariants",
   },
+  customerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "CustomerData",
+  },
   isElectric: {
     type: Boolean,
     default: false,
