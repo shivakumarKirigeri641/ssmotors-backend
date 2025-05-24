@@ -40,9 +40,51 @@ serviceRouter.get(
   async (req, res) => {
     let data = null;
     try {
+      /*const servedVehiclesAndDetails = [];
       const list = await VehicleData.collection.distinct("_id");
-      data = await ServiceData.findOne({ vehicleId: list[1] });
-      res.status(200).json({ status: "Ok", data });
+      for (let i = 0; i < list.length; i++) {
+        const vehicleAndCustomer = await VehicleData.findById(list[i])
+          .populate({
+            path: "variantId",
+            select: "variantName",
+          })
+          .populate({
+            path: "customerId",
+            select: "customerName primaryMobileNumber",
+          });
+        servedVehiclesAndDetails.push({ vehicleAndCustomer });
+
+      }
+     res.status(200).json({
+        status: "Ok",
+        data: servedVehiclesAndDetails,
+      });*/
+      const vehicleData = await VehicleData.find({});
+      const customerData = await CustomerData.find({});
+      const serviceData = await ServiceData.find({});
+
+      //vehiclenumber, id, customerid, variant, latest service info
+      let servedInfo = [];
+      vehicleData.forEach((x) => {
+        const customer = customerData.filter(
+          (z) => z.customerId === x.customerId
+        );
+        const services = serviceData.filter(
+          (y) => y.vehicleId.toString() === x._id.toString()
+        );
+        if (0 < services.length) {
+          const servicedata = services[services.length - 1];
+          servedInfo.push({
+            vehicleInfo: x,
+            customerInfo: customer[0],
+            latestService: servicedata,
+          });
+        }
+      });
+      res.status(200).json({
+        status: "Ok",
+        data: servedInfo,
+      });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
     }
