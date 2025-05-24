@@ -1,7 +1,7 @@
 const express = require("express");
-const getRandomNumber = require("../utils/getRandomNumber");
 const checkAuthentication = require("../routers/checkAuthentication");
 const ServiceData = require("../models/servicesInformation/serviceData");
+const getRandomNumber = require("../utils/getRandomNumber");
 const VehicleData = require("../models/vehicleData");
 const CustomerData = require("../models/customerData");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
@@ -11,7 +11,7 @@ const { populate } = require("dotenv");
 const getRandomNames = require("../utils/getRandomNames");
 const serviceRouter = express.Router();
 
-//w/o limits
+//fetch latest served vehicles & customer information
 serviceRouter.get(
   "/admin/feed/getservicedvehicles",
   checkAuthentication,
@@ -27,7 +27,6 @@ serviceRouter.get(
           path: "customerId",
           select: "customerName primaryMobileNumber",
         });
-      const customerData = await CustomerData.find({});
       const serviceData = await ServiceData.find({});
 
       //vehiclenumber, id, customerid, variant, latest service info
@@ -53,4 +52,35 @@ serviceRouter.get(
     }
   }
 );
+//fetch latest served vehicles & customer information
+serviceRouter.get(
+  "/admin/feed/getservicingvehicles",
+  checkAuthentication,
+  async (req, res) => {
+    let data = null;
+    try {
+      const vehicleData = await VehicleData.find({})
+        .populate({
+          path: "variantId",
+          select: "variantName",
+        })
+        .populate({
+          path: "customerId",
+          select: "customerName primaryMobileNumber",
+        });
+      const serviceData = await ServiceData.find({
+        serviceStatus: 1,
+      });
+
+      //vehiclenumber, id, customerid, variant, latest service info
+      res.status(200).json({
+        status: "Ok",
+        data: serviceData,
+      });
+    } catch (err) {
+      res.status(401).json({ status: "Failed", message: err.message });
+    }
+  }
+);
+
 module.exports = serviceRouter;
