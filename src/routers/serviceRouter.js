@@ -40,43 +40,28 @@ serviceRouter.get(
   async (req, res) => {
     let data = null;
     try {
-      /*const servedVehiclesAndDetails = [];
-      const list = await VehicleData.collection.distinct("_id");
-      for (let i = 0; i < list.length; i++) {
-        const vehicleAndCustomer = await VehicleData.findById(list[i])
-          .populate({
-            path: "variantId",
-            select: "variantName",
-          })
-          .populate({
-            path: "customerId",
-            select: "customerName primaryMobileNumber",
-          });
-        servedVehiclesAndDetails.push({ vehicleAndCustomer });
-
-      }
-     res.status(200).json({
-        status: "Ok",
-        data: servedVehiclesAndDetails,
-      });*/
-      const vehicleData = await VehicleData.find({});
+      const vehicleData = await VehicleData.find({})
+        .populate({
+          path: "variantId",
+          select: "variantName",
+        })
+        .populate({
+          path: "customerId",
+          select: "customerName primaryMobileNumber",
+        });
       const customerData = await CustomerData.find({});
       const serviceData = await ServiceData.find({});
 
       //vehiclenumber, id, customerid, variant, latest service info
       let servedInfo = [];
       vehicleData.forEach((x) => {
-        const customer = customerData.filter(
-          (z) => z.customerId === x.customerId
-        );
         const services = serviceData.filter(
           (y) => y.vehicleId.toString() === x._id.toString()
         );
         if (0 < services.length) {
           const servicedata = services[services.length - 1];
           servedInfo.push({
-            vehicleInfo: x,
-            customerInfo: customer[0],
+            vehicleAndCustomer: x,
             latestService: servicedata,
           });
         }
