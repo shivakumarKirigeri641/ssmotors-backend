@@ -1,5 +1,4 @@
 const express = require("express");
-const getRandomNumber = require("../utils/dummy/getRandomNumber");
 const checkAuthentication = require("../routers/checkAuthentication");
 const ServiceData = require("../models/servicesInformation/serviceData");
 const VehicleData = require("../models/vehicleData");
