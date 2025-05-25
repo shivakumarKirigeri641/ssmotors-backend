@@ -8,8 +8,6 @@ const mongoose = require("mongoose");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerModels = require("../models/TwowheelerModels");
 const TwoWheelerVariants = require("../models/twowheelervariants");
-const { populate } = require("dotenv");
-const getRandomNames = require("../utils/getRandomNames");
 const serviceRouter = express.Router();
 
 //fetch latest served vehicles & customer information
