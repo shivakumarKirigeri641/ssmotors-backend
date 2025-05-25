@@ -1,9 +1,10 @@
 const express = require("express");
+const getRandomNumber = require("../utils/dummy/getRandomNumber");
 const checkAuthentication = require("../routers/checkAuthentication");
 const ServiceData = require("../models/servicesInformation/serviceData");
-const getRandomNumber = require("../utils/getRandomNumber");
 const VehicleData = require("../models/vehicleData");
 const CustomerData = require("../models/customerData");
+const mongoose = require("mongoose");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerModels = require("../models/TwowheelerModels");
 const TwoWheelerVariants = require("../models/twowheelervariants");
@@ -57,19 +58,9 @@ serviceRouter.get(
   "/admin/feed/getservicingvehicles",
   checkAuthentication,
   async (req, res) => {
-    let data = null;
     try {
-      const vehicleData = await VehicleData.find({})
-        .populate({
-          path: "variantId",
-          select: "variantName",
-        })
-        .populate({
-          path: "customerId",
-          select: "customerName primaryMobileNumber",
-        });
       const serviceData = await ServiceData.find({
-        serviceStatus: 1,
+        $or: [{ serviceStatus: 0 }, { serviceStatus: 1 }],
       });
 
       //vehiclenumber, id, customerid, variant, latest service info
@@ -82,5 +73,4 @@ serviceRouter.get(
     }
   }
 );
-
 module.exports = serviceRouter;

@@ -3,7 +3,6 @@ const vehicleDataSchema = mongoose.Schema({
   vehicleNumber: {
     type: String,
     required: true,
-    unique: true,
     minLength: 8,
     maxLength: 15,
     validate(value) {
