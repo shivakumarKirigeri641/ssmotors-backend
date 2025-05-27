@@ -71,4 +71,14 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
     res.status(401).json({ status: "Failed", message: err.message });
   }
 });
+twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
+  try {
+    const data = await twowheelerVariants.collection.distinct("variantName");
+    res
+      .status(200)
+      .json({ status: "Ok", message: "Variants fetched successfully", data });
+  } catch (err) {
+    res.status(401).json({ status: "Failed", message: err.message });
+  }
+});
 module.exports = twowheelerRouter;
