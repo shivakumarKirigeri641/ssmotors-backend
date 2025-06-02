@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerModels = require("../models/TwowheelerModels");
 const TwoWheelerVariants = require("../models/twowheelervariants");
+const CustomerComplaints = require("../models/servicesInformation/customerComplaints");
+const AfterServiceComplaints = require("../models/servicesInformation/afterServiceComplaints");
 const serviceRouter = express.Router();
 
 //fetch latest served vehicles & customer information
@@ -76,26 +78,31 @@ serviceRouter.get(
 serviceRouter.get(
   "/admin/feed/getservicedetails/:vehicleNumber",
   async (req, res) => {
-    const vn = req.params.vehicleNumber;
-    const isvehicleexists = await VehicleData.findOne({ vehicleNumber: vn });
-    if (!isvehicleexists) {
-      throw new Error(`Vehicle number:${vn} does not exists!`);
+    try {
+      let fullServiceData = [];
+      const vn = req.params.vehicleNumber;
+      const isvehicleexists = await VehicleData.findOne({ vehicleNumber: vn });
+      if (!isvehicleexists) {
+        throw new Error(`Vehicle number:${vn} does not exists!`);
+      }
+      const customerInfo = await CustomerData.findById(
+        isvehicleexists.customerId
+      );
+      const serviceInfo = await ServiceData.find({
+        vehicleId: isvehicleexists._id,
+      });
+      res.status(200).json({
+        status: "Ok",
+        message: "Vehicle found",
+        data: {
+          vehicleInfo: isvehicleexists,
+          customerInfo: customerInfo,
+          serviceInfo,
+        },
+      });
+    } catch (err) {
+      res.status(401).json({ status: "Failed", message: err.message });
     }
-    const customerInfo = await CustomerData.findById(
-      isvehicleexists.customerId
-    );
-    const serviceInfo = await ServiceData.find({
-      vehicleId: isvehicleexists._id,
-    });
-    res.status(200).json({
-      status: "Ok",
-      message: "Vehicle found",
-      data: {
-        vehicleInfo: isvehicleexists,
-        customerInfo: customerInfo,
-        serviceInfo: serviceInfo,
-      },
-    });
   }
 );
 module.exports = serviceRouter;
