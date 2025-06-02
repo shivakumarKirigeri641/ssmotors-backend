@@ -72,4 +72,30 @@ serviceRouter.get(
     }
   }
 );
+//fetch individual vehicle & service details
+serviceRouter.get(
+  "/admin/feed/getservicedetails/:vehicleNumber",
+  async (req, res) => {
+    const vn = req.params.vehicleNumber;
+    const isvehicleexists = await VehicleData.findOne({ vehicleNumber: vn });
+    if (!isvehicleexists) {
+      throw new Error(`Vehicle number:${vn} does not exists!`);
+    }
+    const customerInfo = await CustomerData.findById(
+      isvehicleexists.customerId
+    );
+    const serviceInfo = await ServiceData.find({
+      vehicleId: isvehicleexists._id,
+    });
+    res.status(200).json({
+      status: "Ok",
+      message: "Vehicle found",
+      data: {
+        vehicleInfo: isvehicleexists,
+        customerInfo: customerInfo,
+        serviceInfo: serviceInfo,
+      },
+    });
+  }
+);
 module.exports = serviceRouter;
