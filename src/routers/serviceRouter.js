@@ -14,36 +14,22 @@ serviceRouter.get(
   "/admin/feed/getservicedvehicles",
   checkAuthentication,
   async (req, res) => {
-    let data = null;
+    let data = [];
     try {
-      const vehicleData = await VehicleData.find({})
-        .populate({
-          path: "variantId",
-          select: "variantName",
-        })
-        .populate({
-          path: "customerId",
-          select: "customerName primaryMobileNumber",
-        });
-      const serviceData = await ServiceData.find({});
-
-      //vehiclenumber, id, customerid, variant, latest service info
-      let servedInfo = [];
-      vehicleData.forEach((x) => {
-        const services = serviceData.filter(
-          (y) => y.vehicleId.toString() === x._id.toString()
+      const vehiclelist = await VehicleData.find({});
+      const customerlist = await CustomerData.find({});
+      for (let i = 0; i < vehiclelist.length; i++) {
+        const customer = customerlist.filter(
+          (x) => x._id.toString() === vehiclelist[i].customerId.toString()
         );
-        if (0 < services.length) {
-          const servicedata = services[services.length - 1];
-          servedInfo.push({
-            vehicleAndCustomer: x,
-            latestService: servicedata,
-          });
-        }
-      });
+        data.push({
+          vehicleInfo: vehiclelist[i],
+          customerInfo: customer[0],
+        });
+      }
       res.status(200).json({
         status: "Ok",
-        data: servedInfo,
+        data,
       });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
@@ -55,15 +41,31 @@ serviceRouter.get(
   "/admin/feed/getservicingvehicles",
   checkAuthentication,
   async (req, res) => {
+    let data = [];
     try {
-      const serviceData = await ServiceData.find({
+      const vehiclelist = await VehicleData.find({});
+      const customerlist = await CustomerData.find({});
+      const servicinglist = await ServiceData.find({
         $or: [{ serviceStatus: 0 }, { serviceStatus: 1 }],
       });
-
-      //vehiclenumber, id, customerid, variant, latest service info
+      for (let i = 0; i < vehiclelist.length; i++) {
+        const customer = customerlist.filter(
+          (x) => x._id.toString() === vehiclelist[i].customerId.toString()
+        );
+        const servicinginfo = servicinglist.filter(
+          (x) => x.vehicleId.toString() === vehiclelist[i]._id.toString()
+        );
+        if (servicinginfo && 0 < servicinginfo.length) {
+          data.push({
+            vehicleInfo: vehiclelist[i],
+            customerInfo: customer[0],
+            servicinginfo: servicinginfo[0],
+          });
+        }
+      }
       res.status(200).json({
         status: "Ok",
-        data: serviceData,
+        data,
       });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
