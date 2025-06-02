@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
 const twowheelerVariantsSchema = mongoose.Schema({
-  Name: {
+  variantName: {
     type: String,
-    unique: true,
     required: true,
     minLength: 3,
   },
@@ -11,12 +10,12 @@ const twowheelerVariantsSchema = mongoose.Schema({
   },
   modelId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "TwowheelerModels",
+    ref: "twowheelerModels",
     required: true,
   },
 });
-const twowheelerVariants = mongoose.model(
-  "twowheelerVariants",
+const Twowheelervariants = mongoose.model(
+  "Twowheelervariants",
   twowheelerVariantsSchema
 );
-module.exports = twowheelerVariants;
+module.exports = Twowheelervariants;

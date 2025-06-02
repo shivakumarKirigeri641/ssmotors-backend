@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const twoWheelerBrandsSchema = mongoose.Schema({
-  Name: {
+  brandName: {
     type: String,
     unique: true,
     required: true,

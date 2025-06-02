@@ -1,15 +1,10 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const customerDataSchema = mongoose.Schema({
-  Name: {
+  customerName: {
     type: String,
     minLength: 3,
     maxLength: 50,
-  },
-  vehicleId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: "VehicleData",
   },
   primaryMobileNumber: {
     type: String,
@@ -50,5 +45,6 @@ const customerDataSchema = mongoose.Schema({
     },
   },
 });
+customerDataSchema.index({ customerName: 1 });
 const CustomerData = mongoose.model("CustomerData", customerDataSchema);
 module.exports = CustomerData;

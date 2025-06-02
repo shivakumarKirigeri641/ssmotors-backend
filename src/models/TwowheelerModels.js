@@ -1,14 +1,13 @@
 const mongoose = require("mongoose");
 const twowheelerModelsSchema = mongoose.Schema({
-  Name: {
+  modelName: {
     type: String,
-    unique: true,
     required: true,
     minLength: 3,
   },
   brandId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "TwoWheelerBrands",
+    ref: "TwowheelerBrands",
     required: true,
   },
 });

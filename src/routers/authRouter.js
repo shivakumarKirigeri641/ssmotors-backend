@@ -23,6 +23,24 @@ authRouter.post("/admin/login", async (req, res) => {
     });
   }
 });
+
+//garage admin logout
+authRouter.post("/admin/logout", checkAuthentication, async (req, res) => {
+  try {
+    const token = await createJsonToken(req);
+    res.cookie("token", null, { expires: new Date(Date.now()) });
+    res.status(200).json({
+      status: "Ok",
+      message: "Logged out successfully",
+    });
+  } catch (err) {
+    res.status(401).json({
+      status: "Failed",
+      message: err.message,
+      data: req.admindata,
+    });
+  }
+});
 //testing authentication
 authRouter.get("/admin/profile", checkAuthentication, async (req, res) => {
   try {

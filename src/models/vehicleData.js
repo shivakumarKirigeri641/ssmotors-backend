@@ -3,7 +3,6 @@ const vehicleDataSchema = mongoose.Schema({
   vehicleNumber: {
     type: String,
     required: true,
-    unique: true,
     minLength: 8,
     maxLength: 15,
     validate(value) {
@@ -17,11 +16,17 @@ const vehicleDataSchema = mongoose.Schema({
     required: true,
     ref: "Twowheelervariants",
   },
+  customerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "CustomerData",
+  },
   isElectric: {
     type: Boolean,
     default: false,
     required: true,
   },
 });
+vehicleDataSchema.index({ vehicleNumber: 1 });
 const VehicleData = mongoose.model("VehicleData", vehicleDataSchema);
 module.exports = VehicleData;

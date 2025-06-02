@@ -4,6 +4,7 @@ const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
 const AfterServiceComplaints = require("../models/servicesInformation/afterServiceComplaints");
+const AfterServicepaidInformation = require("../models/servicesInformation/afterServicePayInformation");
 const twowheelerRouter = express.Router();
 
 //get brands
@@ -25,7 +26,9 @@ twowheelerRouter.get("/getmodels", checkAuthentication, async (req, res) => {
     if (!brandName) {
       throw new Error("Invalid brand name!");
     }
-    const resultbranddata = await TwowheelerBrands.findOne({ Name: brandName });
+    const resultbranddata = await TwowheelerBrands.findOne({
+      brandName: brandName,
+    });
     if (!resultbranddata) {
       throw new Error("Brand information not found!");
     }
@@ -46,11 +49,15 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
     if (!brandName || !modelName) {
       throw new Error("Invalid brand name!");
     }
-    const resultbranddata = await TwowheelerBrands.findOne({ Name: brandName });
+    const resultbranddata = await TwowheelerBrands.findOne({
+      brandName: brandName,
+    });
     if (!resultbranddata) {
       throw new Error("Brand information not found!");
     }
-    const resultmodeldata = await TwowheelerModels.findOne({ Name: modelName });
+    const resultmodeldata = await TwowheelerModels.findOne({
+      modelName: modelName,
+    });
     if (!resultmodeldata) {
       throw new Error("Model information not found!");
     }
@@ -64,17 +71,14 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
     res.status(401).json({ status: "Failed", message: err.message });
   }
 });
-
-//temp api
-twowheelerRouter.post("/temp", async (req, res) => {
-  const data = new AfterServiceComplaints({
-    serviceDataId: "682ccc1faa56267864d2e10a",
-    complaints: [
-      "Complete key needs to be replaced.",
-      "Rod is shaking on riding",
-    ],
-  });
-  await data.save();
-  res.send("data2");
+twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
+  try {
+    const data = await twowheelerVariants.collection.distinct("variantName");
+    res
+      .status(200)
+      .json({ status: "Ok", message: "Variants fetched successfully", data });
+  } catch (err) {
+    res.status(401).json({ status: "Failed", message: err.message });
+  }
 });
 module.exports = twowheelerRouter;
