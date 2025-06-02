@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-require("dotenv").config(); //
+require("dotenv").config();
 const createJsonToken = async (req) => {
   const token = await jwt.sign(
     { _id: req.admindata._id },
