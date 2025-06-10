@@ -7,18 +7,18 @@ const mongoose = require("mongoose");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerModels = require("../models/TwowheelerModels");
 const TwoWheelerVariants = require("../models/twowheelervariants");
-const CustomerComplaints = require("../models/servicesInformation/customerComplaints");
 const AfterServiceComplaints = require("../models/servicesInformation/afterServiceComplaints");
 const AfterServicepaidInformation = require("../models/servicesInformation/afterServicePayInformation");
 const CurrentStdServicesCheckList = require("../models/servicesInformation/currentStdServicesCheckList");
 const CurrentVehicleInspectionCheckList = require("../models/servicesInformation/currentVehicleInspectionCheckList");
-const ExpectedServiceCost = require("../models/servicesInformation/expectedServiceCost");
+const cusotmercomplaints = require("../models/servicesInformation/customerComplaints");
+const CustomerComplaints = require("../models/servicesInformation/customerComplaints");
+const ExpectedServiceCosts = require("../models/servicesInformation/expectedServiceCost");
 const MechanicObservations = require("../models/servicesInformation/mechanicObservations");
 const NextServiceDetails = require("../models/servicesInformation/nextServiceDetails");
 const PaidInformation = require("../models/servicesInformation/paidInformation");
 const PartsAndAccessories = require("../models/servicesInformation/partsAndAccessories");
-const ServiceDeliveryDetails = require("../models/servicesInformation/serviceDeliveryDetails");
-
+const PartsAndAccessoryStructure = require("../models/servicesInformation/partsAndAccessoryStructure");
 const serviceRouter = express.Router();
 
 //fetch latest served vehicles & customer information
@@ -84,52 +84,72 @@ serviceRouter.get(
     }
   }
 );
-//fetch individual vehicle, customer & brief service details
+//fetch services dates a given vehicle number
 serviceRouter.get(
-  "/admin/feed/getservicedetails/:vehicleNumber",
+  "/admin/feed/getserviceddates/:vehiclenumber",
+  checkAuthentication,
   async (req, res) => {
+    let data = [];
     try {
-      let fullServiceData = [];
-      const vn = req.params.vehicleNumber;
-      const isvehicleexists = await VehicleData.findOne({ vehicleNumber: vn });
-      if (!isvehicleexists) {
-        throw new Error(`Vehicle number:${vn} does not exists!`);
+      const vehiclenumber = req.params.vehiclenumber;
+      if (!vehiclenumber) {
+        throw new Error("Invalid vehicle information provided!");
       }
-      const customerInfo = await CustomerData.findById(
-        isvehicleexists.customerId
-      );
-      const serviceInfo = await ServiceData.find({
-        vehicleId: isvehicleexists._id,
+      //fetch vehicle information
+      const vehicleData = await VehicleData.findOne({
+        vehicleNumber: vehiclenumber,
       });
+      if (!vehicleData) {
+        throw new Error("Invalid vehicle information provided!");
+      }
+      //fetch service information
+      const serviceinformations = await ServiceData.find({
+        vehicleId: vehicleData._id,
+      }).select("vehicleServiceTimeIn");
+      if (!serviceinformations) {
+        throw new Error("No service information found!");
+      }
       res.status(200).json({
         status: "Ok",
-        message: "Vehicle found",
-        data: {
-          vehicleInfo: isvehicleexists,
-          customerInfo: customerInfo,
-          serviceInfo,
-        },
+        serviceinformations,
       });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
     }
   }
 );
-
-//fetch service full detials based on service selected by date (pass serviceid as paramter).
+//fetch full service information for a given vehicle Number and service date mentioned.
 serviceRouter.get(
-  "/admin/feed/getservicefulldetails/:serviceid",
+  "/admin/feed/getallserviceinfo/:vehiclenumber/:serviceid",
+  checkAuthentication,
   async (req, res) => {
+    let data = null;
     try {
+      const vehiclenumber = req.params.vehiclenumber;
       const serviceid = req.params.serviceid;
-      const serviceinfo = await ServiceData.findById(serviceid);
-      if (!serviceinfo) {
-        throw new Error("Service information not found!");
+      if (!vehiclenumber) {
+        throw new Error("Invalid vehicle information provided!");
       }
-      const afterservicecomplaints = await AfterServiceComplaints.findOne({
+      //fetch vehicle information
+      const vehicleData = await VehicleData.findOne({
+        vehicleNumber: vehiclenumber,
+      });
+      if (!vehicleData) {
+        throw new Error("Invalid vehicle information provided!");
+      }
+      //fetch service information
+      const serviceinformation = await ServiceData.findOne({
+        $and: [{ _id: serviceid }, { vehicleId: vehicleData._id }],
+      });
+      if (!serviceinformation) {
+        throw new Error("No service information found!");
+      }
+      //fetch after complaints
+      const afterServiceComplaints = await AfterServiceComplaints.findOne({
         serviceDataId: serviceid,
       });
-      const afterservicepaymentInformation =
+      //fetch after complaints paid info
+      const afterServicePayInformation =
         await AfterServicepaidInformation.findOne({
           serviceDataId: serviceid,
         });
@@ -138,55 +158,52 @@ serviceRouter.get(
         await CurrentStdServicesCheckList.findOne({
           serviceDataId: serviceid,
         });
-      //CurrentVehicleInspectionCheckList
+      //current insp list
       const currentVehicleInspectionCheckList =
         await CurrentVehicleInspectionCheckList.findOne({
           serviceDataId: serviceid,
         });
-      //CustomerComplaints
-      const customerComplaints = await CustomerComplaints.findOne({
+      //customer complaints
+      const cusotmercomplaints = await CustomerComplaints.findOne({
         serviceDataId: serviceid,
       });
-      //ExpectedServiceCost
-      const expectedServiceCost = await ExpectedServiceCost.findOne({
+      //expected service costs
+      const expectedservicecosts = await ExpectedServiceCosts.findOne({
         serviceDataId: serviceid,
       });
-      //MechanicObservations
+      //mech observations
       const mechanicObservations = await MechanicObservations.findOne({
         serviceDataId: serviceid,
       });
-      //NextServiceDetails
+      //next service details
       const nextServiceDetails = await NextServiceDetails.findOne({
         serviceDataId: serviceid,
       });
-      //PaidInformation
+      //paid info
       const paidInformation = await PaidInformation.findOne({
         serviceDataId: serviceid,
       });
-      //PartsAndAccessories
-      const partsAndAccessories = await PartsAndAccessories.findOne({
+      //parts and acc
+      const partsAndAccessories = await PartsAndAccessoryStructure.findOne({
         serviceDataId: serviceid,
       });
-      //ServiceDeliveryDetails
-      const serviceDeliveryDetails = await ServiceDeliveryDetails.findOne({
-        serviceDataId: serviceid,
-      });
+      data = {
+        vehiceInfo: vehicleData,
+        serviceInfo: serviceinformation,
+        afterServiceComplaints,
+        afterServicePayInformation,
+        currentStdServicesCheckList,
+        currentVehicleInspectionCheckList,
+        cusotmercomplaints,
+        expectedservicecosts,
+        mechanicObservations,
+        nextServiceDetails,
+        paidInformation,
+        partsAndAccessories,
+      };
       res.status(200).json({
         status: "Ok",
-        message: "Vehicle found",
-        data: {
-          afterservicecomplaints: afterservicecomplaints,
-          afterservicepaymentInformation: afterservicepaymentInformation,
-          currentStdServicesCheckList: currentStdServicesCheckList,
-          currentVehicleInspectionCheckList: currentVehicleInspectionCheckList,
-          customerComplaints: customerComplaints,
-          expectedServiceCost: expectedServiceCost,
-          mechanicObservations: mechanicObservations,
-          nextServiceDetails: nextServiceDetails,
-          paidInformation: paidInformation,
-          partsAndAccessories: partsAndAccessories,
-          serviceDeliveryDetails: serviceDeliveryDetails,
-        },
+        data,
       });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
