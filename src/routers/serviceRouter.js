@@ -28,7 +28,10 @@ serviceRouter.get(
   async (req, res) => {
     let data = [];
     try {
-      const vehiclelist = await VehicleData.find({});
+      const vehiclelist = await VehicleData.find({}).populate(
+        "variantId",
+        "variantName"
+      );
       const customerlist = await CustomerData.find({});
       for (let i = 0; i < vehiclelist.length; i++) {
         const customer = customerlist.filter(
@@ -55,7 +58,10 @@ serviceRouter.get(
   async (req, res) => {
     let data = [];
     try {
-      const vehiclelist = await VehicleData.find({});
+      const vehiclelist = await VehicleData.find({}).populate(
+        "variantId",
+        "variantName"
+      );
       const customerlist = await CustomerData.find({});
       const servicinglist = await ServiceData.find({
         $or: [{ serviceStatus: 0 }, { serviceStatus: 1 }],
