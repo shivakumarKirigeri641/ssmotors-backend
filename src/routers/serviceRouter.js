@@ -108,6 +108,11 @@ serviceRouter.get(
       if (!vehicleData) {
         throw new Error("Invalid vehicle information provided!");
       }
+      //fetch customer information
+      const customerData = await CustomerData.findById(vehicleData.customerId);
+      if (!customerData) {
+        throw new Error("Invalid customer information provided!");
+      }
       //fetch service information
       const serviceinformations = await ServiceData.find({
         vehicleId: vehicleData._id,
@@ -118,6 +123,8 @@ serviceRouter.get(
       res.status(200).json({
         status: "Ok",
         serviceinformations,
+        vehicleData,
+        customerData,
       });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
