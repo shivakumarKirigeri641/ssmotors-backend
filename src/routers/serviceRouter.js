@@ -139,9 +139,14 @@ serviceRouter.get(
       //fetch vehicle information
       const vehicleData = await VehicleData.findOne({
         vehicleNumber: vehiclenumber,
-      });
+      }).populate("variantId", "variantName");
       if (!vehicleData) {
         throw new Error("Invalid vehicle information provided!");
+      }
+      //fetch customer information
+      const customerInfo = await CustomerData.findById(vehicleData.customerId);
+      if (!customerInfo) {
+        throw new Error("Invalid customer information provided!");
       }
       //fetch service information
       const serviceinformation = await ServiceData.findOne({
@@ -195,6 +200,7 @@ serviceRouter.get(
       });
       data = {
         vehiceInfo: vehicleData,
+        customerInfo: customerInfo,
         serviceInfo: serviceinformation,
         afterServiceComplaints,
         afterServicePayInformation,
