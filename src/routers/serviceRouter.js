@@ -120,11 +120,10 @@ serviceRouter.get(
       if (!serviceinformations) {
         throw new Error("No service information found!");
       }
+      data = { serviceinformations, vehicleData, customerData };
       res.status(200).json({
         status: "Ok",
-        serviceinformations,
-        vehicleData,
-        customerData,
+        data,
       });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
