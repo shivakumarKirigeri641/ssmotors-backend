@@ -104,7 +104,7 @@ serviceRouter.get(
       //fetch vehicle information
       const vehicleData = await VehicleData.findOne({
         vehicleNumber: vehiclenumber,
-      });
+      }).populate("variantId", "variantName");
       if (!vehicleData) {
         throw new Error("Invalid vehicle information provided!");
       }
@@ -114,12 +114,18 @@ serviceRouter.get(
         throw new Error("Invalid customer information provided!");
       }
       //fetch service information
+      let sortedDates = [];
       const serviceinformations = await ServiceData.find({
         vehicleId: vehicleData._id,
       }).select("vehicleServiceTimeIn");
       if (!serviceinformations) {
         throw new Error("No service information found!");
       }
+      sortedDates = serviceinformations.sort(
+        (a, b) =>
+          new Date(b.vehicleServiceTimeIn) - new Date(a.vehicleServiceTimeIn)
+      );
+      console.log(sortedDates);
       data = { serviceinformations, vehicleData, customerData };
       res.status(200).json({
         status: "Ok",
