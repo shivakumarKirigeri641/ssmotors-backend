@@ -104,7 +104,7 @@ serviceRouter.get(
       //fetch vehicle information
       const vehicleData = await VehicleData.findOne({
         vehicleNumber: vehiclenumber,
-      }).populate("variantId", "variantName");
+      }).populate("variantId", "variantName photourl");
       if (!vehicleData) {
         throw new Error("Invalid vehicle information provided!");
       }
