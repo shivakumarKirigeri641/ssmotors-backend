@@ -1,24 +1,12 @@
 const express = require("express");
 const checkAuthentication = require("../routers/checkAuthentication");
-const ServiceData = require("../models/servicesInformation/serviceData");
+const ServiceData = require("../models/serviceData");
 const VehicleData = require("../models/vehicleData");
 const CustomerData = require("../models/customerData");
 const mongoose = require("mongoose");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerModels = require("../models/TwowheelerModels");
 const TwoWheelerVariants = require("../models/twowheelervariants");
-const AfterServiceComplaints = require("../models/servicesInformation/afterServiceComplaints");
-const AfterServicepaidInformation = require("../models/servicesInformation/afterServicePayInformation");
-const CurrentStdServicesCheckList = require("../models/servicesInformation/currentStdServicesCheckList");
-const CurrentVehicleInspectionCheckList = require("../models/servicesInformation/currentVehicleInspectionCheckList");
-const cusotmercomplaints = require("../models/servicesInformation/customerComplaints");
-const CustomerComplaints = require("../models/servicesInformation/customerComplaints");
-const ExpectedServiceCosts = require("../models/servicesInformation/expectedServiceCost");
-const MechanicObservations = require("../models/servicesInformation/mechanicObservations");
-const NextServiceDetails = require("../models/servicesInformation/nextServiceDetails");
-const PaidInformation = require("../models/servicesInformation/paidInformation");
-const PartsAndAccessories = require("../models/servicesInformation/partsAndAccessories");
-const PartsAndAccessoryStructure = require("../models/servicesInformation/partsAndAccessoryStructure");
 const summaryRouter = express.Router();
 
 //fetch service summary
