@@ -3,8 +3,6 @@ const TwowheelerModels = require("../models/TwowheelerModels");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
-const AfterServiceComplaints = require("../models/servicesInformation/afterServiceComplaints");
-const AfterServicepaidInformation = require("../models/servicesInformation/afterServicePayInformation");
 const twowheelerRouter = express.Router();
 
 //get brands

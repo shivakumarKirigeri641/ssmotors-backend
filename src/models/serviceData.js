@@ -38,6 +38,10 @@ const serviceDataSchema = mongoose.Schema({
     min: 0,
     max: 2,
   },
+  serviceSequenceNumber: {
+    type: Number,
+    required: true,
+  },
 });
 const ServiceData = mongoose.model("ServiceData", serviceDataSchema);
 module.exports = ServiceData;
