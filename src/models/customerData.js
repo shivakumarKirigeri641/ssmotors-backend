@@ -33,12 +33,13 @@ const customerDataSchema = mongoose.Schema({
   },
   address: {
     type: String,
-    minLength: 3,
+    minLength: 0,
     maxLength: 100,
   },
   email: {
     type: String,
     validate(value) {
+      if (!value) return;
       if (!validator.isEmail(value)) {
         throw new Error("Invalid email provided!");
       }
