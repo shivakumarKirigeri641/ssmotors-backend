@@ -12,23 +12,22 @@ serviceRouter.get(
   async (req, res) => {
     let data = [];
     try {
-      const vehiclelist = await VehicleData.find({}).populate(
-        "variantId",
-        "variantName"
-      );
-      const customerlist = await CustomerData.find({});
-      for (let i = 0; i < vehiclelist.length; i++) {
-        const customer = customerlist.filter(
-          (x) => x._id.toString() === vehiclelist[i].customerId.toString()
-        );
-        data.push({
-          vehicleInfo: vehiclelist[i],
-          customerInfo: customer[0],
-        });
-      }
+      //isLatestService
+      let data = [];
+      let servedVehicleInfos = await VehicleData.find({})
+        .populate("variantId")
+        .populate("customerId")
+        .populate("serviceDataId");
+      servedVehicleInfos = servedVehicleInfos.map((item) => ({
+        _id: item._id,
+        vehicleNumber: item.vehicleNumber,
+        vehicleInfo: item.variantId,
+        customerInfo: item.customerId,
+        latestservice: item.serviceDataId.list.at(-1),
+      }));
       res.status(200).json({
         status: "Ok",
-        data,
+        servedVehicleInfos,
       });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
