@@ -73,9 +73,9 @@ serviceRouter.get(
     }
   }
 );
-//fetch services dates a given vehicle number
+//fetch full service details on a given vehicle number
 serviceRouter.get(
-  "/admin/feed/getserviceddates/:vehiclenumber",
+  "/admin/feed/getvehicledetails/:vehiclenumber",
   checkAuthentication,
   async (req, res) => {
     let data = [];
@@ -85,51 +85,13 @@ serviceRouter.get(
         throw new Error("Invalid vehicle information provided!");
       }
       //fetch vehicle information
-      const vehicleData = await VehicleData.findOne({
-        vehicleNumber: vehiclenumber,
-      }).populate("variantId", "variantName photourl");
-      if (!vehicleData) {
-        throw new Error("Invalid vehicle information provided!");
-      }
-      //fetch customer information
-      const customerData = await CustomerData.findById(vehicleData.customerId);
-      if (!customerData) {
-        throw new Error("Invalid customer information provided!");
-      }
-      //fetch service information
-      let sortedDates = [];
-      const serviceinformations = await ServiceData.find({
-        vehicleId: vehicleData._id,
-      }).select("vehicleServiceTimeIn");
-      if (!serviceinformations) {
-        throw new Error("No service information found!");
-      }
-      sortedDates = serviceinformations.sort(
-        (a, b) =>
-          new Date(b.vehicleServiceTimeIn) - new Date(a.vehicleServiceTimeIn)
-      );
-      console.log(sortedDates);
-      data = { serviceinformations, vehicleData, customerData };
+      let allinfo = await VehicleData.findOne({ vehicleNumber: vehiclenumber })
+        .populate("variantId")
+        .populate("customerId")
+        .populate("serviceDataId");
       res.status(200).json({
         status: "Ok",
-        data,
-      });
-    } catch (err) {
-      res.status(401).json({ status: "Failed", message: err.message });
-    }
-  }
-);
-//fetch full service information for a given vehicle Number and service date mentioned.
-serviceRouter.get(
-  "/admin/feed/getallserviceinfo/:vehiclenumber/:serviceid",
-  checkAuthentication,
-  async (req, res) => {
-    let data = null;
-    try {
-      data = {};
-      res.status(200).json({
-        status: "Ok",
-        data,
+        allinfo,
       });
     } catch (err) {
       res.status(401).json({ status: "Failed", message: err.message });
