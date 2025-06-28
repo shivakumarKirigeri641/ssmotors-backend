@@ -41,39 +41,26 @@ serviceRouter.get(
   async (req, res) => {
     let data = [];
     try {
-      const vehiclelist = await VehicleData.find({}).populate(
-        "variantId",
-        "variantName"
-      );
-      const customerlist = await CustomerData.find({});
-      const servicinglist = await ServiceData.find({
-        $or: [{ serviceStatus: 0 }, { serviceStatus: 1 }],
-      });
-      for (let i = 0; i < vehiclelist.length; i++) {
-        const customer = customerlist.filter(
-          (x) => x._id.toString() === vehiclelist[i].customerId.toString()
-        );
-        const servicinginfo = servicinglist.filter(
-          (x) => x.vehicleId.toString() === vehiclelist[i]._id.toString()
-        );
-        if (servicinginfo && 0 < servicinginfo.length) {
-          const prevservicedetailslist = await ServiceData.find({
-            $and: [
-              {
-                vehicleId: vehiclelist[i]._id,
-              },
-              {
-                serviceStatus: 2,
-              },
-            ],
-          });
-          const prevServiceData =
-            prevservicedetailslist[prevservicedetailslist.length - 1];
+      //isLatestService
+      let data = [];
+      let servedVehicleInfos = await VehicleData.find({})
+        .populate("variantId")
+        .populate("customerId")
+        .populate("serviceDataId");
+      for (let i = 0; i < servedVehicleInfos.length; i++) {
+        if (
+          servedVehicleInfos[i].serviceDataId.list[
+            servedVehicleInfos[i].serviceDataId.list.length - 1
+          ].isLatestService
+        ) {
           data.push({
-            vehicleInfo: vehiclelist[i],
-            customerInfo: customer[0],
-            servicinginfo: servicinginfo[0],
-            previousServiceDetails: prevServiceData,
+            vehicleNumber: servedVehicleInfos[i].vehicleNumber,
+            vehicleInfo: servedVehicleInfos[i].variantId,
+            customerInfo: servedVehicleInfos[i].customerId,
+            latestService:
+              servedVehicleInfos[i].serviceDataId.list[
+                servedVehicleInfos[i].serviceDataId.list.length - 1
+              ],
           });
         }
       }
