@@ -1,7 +1,10 @@
 const express = require("express");
+const VehicleData = require("../models/vehicleData");
+const CustomerData = require("../models/customerData");
 const TwowheelerModels = require("../models/TwowheelerModels");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
+const Twowheelervariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
 const twowheelerRouter = express.Router();
 
@@ -79,4 +82,47 @@ twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
     res.status(401).json({ status: "Failed", message: err.message });
   }
 });
+
+twowheelerRouter.post(
+  "/addnewvehicletoservice",
+  checkAuthentication,
+  async (req, res) => {
+    try {
+      const jsonobject = req.body;
+      const isvehiclenumberpresent = await VehicleData.findOne({
+        vehicleNumber: jsonobject.vehicleNumber,
+      });
+      if (isvehiclenumberpresent) {
+        throw new Error(
+          `Vehicle with number:${jsonobject.vehicleNumber} already serviced previously. Try searching in served vehicle list`
+        );
+      }
+      const variantdetails = await Twowheelervariants.findOne({
+        variantName: jsonobject.variantName,
+      });
+      const customerInfo = new CustomerData({
+        customerName: jsonobject.customerName,
+        primaryMobileNumber: jsonobject.mobile1,
+        preferredMobileNumber: jsonobject.mobile2,
+        email: jsonobject.email,
+        address: jsonobject.address,
+      });
+      const customerresult = await customerInfo.save();
+      const vehicleinfo = new VehicleData({
+        vehicleNumber: jsonobject.vehicleNumber,
+        variantId: variantdetails._id,
+        customerId: customerresult._id,
+      });
+      const resultvehicleinfo = await vehicleinfo.save();
+      res.status(200).json({
+        status: "Ok",
+        message: "Vehicle & customer information registered successfully...",
+        customerresult,
+        resultvehicleinfo,
+      });
+    } catch (err) {
+      res.json({ status: "Failed", message: err.message });
+    }
+  }
+);
 module.exports = twowheelerRouter;
