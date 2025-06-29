@@ -1,15 +1,8 @@
 const mongoose = require("mongoose");
+const itemDataSchema = require("./itemDataSchema");
 const standardServicesCheckListSchema = mongoose.Schema({
-  serviceName: {
-    type: String,
-    unique: true,
-    minLength: 3,
-    maxLength: 30,
-    required: true,
-  },
-  serviceLists: {
-    type: [String],
-    required: true,
+  list: {
+    type: [itemDataSchema],
   },
 });
 const StandardServicesCheckList = mongoose.model(

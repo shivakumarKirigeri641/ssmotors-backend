@@ -2,17 +2,19 @@ const mongoose = require("mongoose");
 const itemDataSchema = mongoose.Schema({
   title: {
     type: String,
-    required: true,
     minLength: 2,
     maxLength: 50,
   },
   description: {
     type: String,
-    required: true,
     minLength: 2,
     maxLength: 300,
   },
   isAmountPayable: {
+    type: Boolean,
+    default: false,
+  },
+  isChecked: {
     type: Boolean,
     default: false,
   },
