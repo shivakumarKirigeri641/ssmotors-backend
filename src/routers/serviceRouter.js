@@ -48,6 +48,7 @@ serviceRouter.get(
         .populate("customerId")
         .populate("serviceDataId");
       for (let i = 0; i < servedVehicleInfos.length; i++) {
+        console.log(i);
         if (
           servedVehicleInfos[i].serviceDataId.list[
             servedVehicleInfos[i].serviceDataId.list.length - 1

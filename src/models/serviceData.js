@@ -31,7 +31,7 @@ const serviceDataSchema = mongoose.Schema({
         },
         serviceSequenceNumber: {
           type: Number,
-          min: 0,
+          min: 1,
           max: 9999999,
         },
         serviceBill: {

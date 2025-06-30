@@ -1,11 +1,21 @@
 const express = require("express");
+const ServiceData = require("../models/serviceData");
 const VehicleData = require("../models/vehicleData");
+const servicePayments = require("../models/servicePayments");
+const customerComplaints = require("../models/customerComplaints");
+const partsAndAccessories = require("../models/partsAndAccessories");
+const afterServiceComplaints = require("../models/afterServiceComplaints");
+const mechanicObservations = require("../models/mechanicObservations");
+const StandardServicesCheckList = require("../models/standardServicesCheckList");
 const CustomerData = require("../models/customerData");
 const TwowheelerModels = require("../models/TwowheelerModels");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
 const Twowheelervariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
+const {
+  getStandardCheckLists,
+} = require("../utils/dummy/getStandardCheckLists");
 const twowheelerRouter = express.Router();
 
 //get brands
@@ -84,45 +94,168 @@ twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
 });
 
 twowheelerRouter.post(
-  "/addnewvehicletoservice",
+  "/admin/insert/addnewvehicletoservice",
   checkAuthentication,
   async (req, res) => {
+    const jsonobject = req.body;
     try {
-      const jsonobject = req.body;
       const isvehiclenumberpresent = await VehicleData.findOne({
-        vehicleNumber: jsonobject.vehicleNumber,
+        vehicleNumber: jsonobject?.result?.vehicleInfo?.vehicleNumber,
       });
       if (isvehiclenumberpresent) {
         throw new Error(
-          `Vehicle with number:${jsonobject.vehicleNumber} already serviced previously. Try searching in served vehicle list`
+          `Vehicle with number:${jsonobject?.result?.vehicleInfo?.vehicleNumber} already serviced previously. Try searching in served vehicle list`
         );
       }
       const variantdetails = await Twowheelervariants.findOne({
-        variantName: jsonobject.variantName,
+        variantName: jsonobject?.result?.vehicleInfo?.vehicleVariant,
       });
-      const customerInfo = new CustomerData({
-        customerName: jsonobject.customerName,
-        primaryMobileNumber: jsonobject.mobile1,
-        preferredMobileNumber: jsonobject.mobile2,
-        email: jsonobject.email,
-        address: jsonobject.address,
+      let customerInfo = new CustomerData({
+        customerName: jsonobject?.result?.customerInfo?.customerName,
+        primaryMobileNumber: jsonobject?.result?.customerInfo?.customerMobile,
+        preferredMobileNumber: jsonobject?.result?.customerInfo
+          ?.customerAltMobile
+          ? jsonobject?.result?.customerInfo?.customerAltMobile
+          : jsonobject?.result?.customerInfo?.customerMobile,
+        email: jsonobject?.result?.customerInfo?.customeremail
+          ? jsonobject?.result?.customerInfo?.customeremail
+          : "empty@gmail.com",
+        address: jsonobject?.result?.customerInfo?.customeraddress
+          ? jsonobject?.result?.customerInfo?.customeraddress
+          : "<Address not provided>",
       });
-      const customerresult = await customerInfo.save();
-      const vehicleinfo = new VehicleData({
-        vehicleNumber: jsonobject.vehicleNumber,
+      customerInfo = await customerInfo.save();
+
+      //customer complaints
+      let customerComplaintsinfo = new customerComplaints({
+        list: jsonobject?.result?.customerComplaintsInfo,
+      });
+      customerComplaintsinfo = await customerComplaintsinfo.save();
+
+      //customer complaints
+      let afterServiceComplaintsinfo = new afterServiceComplaints({
+        list: [],
+      });
+      afterServiceComplaintsinfo = await afterServiceComplaintsinfo.save();
+
+      //mech obs
+      let mechanicObservationsinfo = new mechanicObservations({
+        list: [],
+      });
+      mechanicObservationsinfo = await mechanicObservationsinfo.save();
+
+      //partsAndAccessories
+      let partsAndAccessoriesinfo = new partsAndAccessories({
+        list: [],
+      });
+      partsAndAccessoriesinfo = await partsAndAccessoriesinfo.save();
+
+      //servicePayments
+      let servicePaymentsinfo = new servicePayments({
+        list: [
+          {
+            title: "Wash",
+            description: "Water wash internal/external",
+            isAmountPayable: true,
+            amount: 350,
+          },
+          {
+            title: "Labour charge",
+            description: "Default servicing charges applied",
+            isAmountPayable: true,
+            amount: 500,
+          },
+          {
+            title: "Engine oil",
+            description: "Castrol engine oil replacement",
+            isAmountPayable: true,
+            amount: 720,
+            cGST: 18,
+            sGST: 18,
+          },
+        ],
+      });
+      servicePaymentsinfo = await servicePaymentsinfo.save();
+
+      //StandardServicesCheckList
+      let StandardServicesCheckListinfo = new StandardServicesCheckList({
+        list: getStandardCheckLists(),
+      });
+      StandardServicesCheckListinfo =
+        await StandardServicesCheckListinfo.save();
+
+      //now create ServiceData
+      let exitdate = new Date(
+        jsonobject?.result?.vehicleInfo.vehicleServiceOutDate
+      );
+      let servcelist = [];
+      let nextservdate = new Date(exitdate).setDate(exitdate.getDate() + 50);
+      servcelist.push({
+        kmDriven: parseInt(jsonobject?.result?.vehicleInfo.kmDriven),
+        dateOfVehicleEntry: new Date(
+          jsonobject?.result?.vehicleInfo.vehicleServiceInDate
+        ),
+        dateOfVehicleExit: new Date(
+          jsonobject?.result?.vehicleInfo.vehicleServiceOutDate
+        ),
+        kmForNextService:
+          parseInt(jsonobject?.result?.vehicleInfo.kmDriven) + 2500,
+        dateForNextService: nextservdate,
+        serviceSequenceNumber: 1,
+        serviceStatus: 0,
+        isLatestService: true,
+        fuelPercentBeforeService: parseInt(
+          jsonobject?.result?.vehicleInfo.fuelPresent
+        ),
+        afterServiceComplaintsId: afterServiceComplaintsinfo._id,
+        customerComplaintsId: customerComplaintsinfo._id,
+        mechanicObservationsId: mechanicObservationsinfo._id,
+        partsAndAccessoriesId: partsAndAccessoriesinfo._id,
+        servicePaymentsId: servicePaymentsinfo._id,
+        StandardServicesCheckListId: StandardServicesCheckListinfo._id,
+      });
+      let serviceDatainfo = new ServiceData({
+        list: servcelist,
+      });
+      serviceDatainfo = await serviceDatainfo.save();
+      let vehicleInfo = new VehicleData({
+        vehicleNumber: jsonobject?.result?.vehicleInfo?.vehicleNumber,
         variantId: variantdetails._id,
-        customerId: customerresult._id,
+        customerId: customerInfo._id,
+        serviceDataId: serviceDatainfo._id,
       });
-      const resultvehicleinfo = await vehicleinfo.save();
+      vehicleInfo = await vehicleInfo.save();
       res.status(200).json({
         status: "Ok",
         message: "Vehicle & customer information registered successfully...",
-        customerresult,
-        resultvehicleinfo,
+        data: vehicleInfo,
       });
     } catch (err) {
-      res.json({ status: "Failed", message: err.message });
+      res.json({
+        status: "Failed",
+        message: err.message,
+        yourdata: jsonobject,
+      });
     }
   }
 );
+twowheelerRouter.get("/temp", async (req, res) => {
+  try {
+    //CUSTOMER:685e86ef01d82c6aa40733cb
+    const jsonobject = await VehicleData.findOne({
+      vehicleNumber: "KA02EX1480",
+    });
+    const jsonobjectCUST = await VehicleData.findOne({
+      vehicleNumber: "ka02ex1480",
+    });
+    res.status(200).json({
+      status: "Ok",
+      message: "Vehicle & customer information registered successfully...",
+      jsonobject,
+      jsonobjectCUST,
+    });
+  } catch (err) {
+    res.json({ status: "Failed", message: err.message });
+  }
+});
 module.exports = twowheelerRouter;
