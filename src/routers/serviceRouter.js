@@ -25,6 +25,11 @@ serviceRouter.get(
         customerInfo: item.customerId,
         latestservice: item.serviceDataId.list.at(-1),
       }));
+      data = data.sort(
+        (a, b) =>
+          new Date(b.latestService.dateOfVehicleEntry) -
+          new Date(a.latestService.dateOfVehicleEntry)
+      );
       res.status(200).json({
         status: "Ok",
         servedVehicleInfos,
@@ -65,6 +70,11 @@ serviceRouter.get(
           });
         }
       }
+      data = data.sort(
+        (a, b) =>
+          new Date(b.latestService.dateOfVehicleEntry) -
+          new Date(a.latestService.dateOfVehicleEntry)
+      );
       res.status(200).json({
         status: "Ok",
         data,

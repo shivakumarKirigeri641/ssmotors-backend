@@ -16,6 +16,7 @@ const checkAuthentication = require("./checkAuthentication");
 const {
   getStandardCheckLists,
 } = require("../utils/dummy/getStandardCheckLists");
+const e = require("express");
 const twowheelerRouter = express.Router();
 
 //get brands
@@ -82,6 +83,8 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
     res.status(401).json({ status: "Failed", message: err.message });
   }
 });
+
+//get all vehicles
 twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
   try {
     const data = await twowheelerVariants.collection.distinct("variantName");
@@ -93,6 +96,24 @@ twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
   }
 });
 
+//
+twowheelerRouter.get(
+  "/admin/getvehiclenumbers",
+  checkAuthentication,
+  async (req, res) => {
+    try {
+      const vn = req.params.vehiclenumber;
+      const data = await VehicleData.find({}).select("vehicleNumber");
+      res.status(200).json({
+        status: "Ok",
+        message: "vehicle numbers fetched successfully",
+        data,
+      });
+    } catch (err) {
+      res.status(404).json({ status: "Failed", message: err.message });
+    }
+  }
+);
 twowheelerRouter.post(
   "/admin/insert/addnewvehicletoservice",
   checkAuthentication,
@@ -243,16 +264,15 @@ twowheelerRouter.get("/temp", async (req, res) => {
   try {
     //CUSTOMER:685e86ef01d82c6aa40733cb
     const jsonobject = await VehicleData.findOne({
-      vehicleNumber: "KA02EX1480",
-    });
-    const jsonobjectCUST = await VehicleData.findOne({
-      vehicleNumber: "ka02ex1480",
-    });
+      vehicleNumber: "KA31N8147",
+    })
+      .populate("variantId")
+      .populate("customerId")
+      .populate("serviceDataId");
     res.status(200).json({
       status: "Ok",
       message: "Vehicle & customer information registered successfully...",
       jsonobject,
-      jsonobjectCUST,
     });
   } catch (err) {
     res.json({ status: "Failed", message: err.message });
