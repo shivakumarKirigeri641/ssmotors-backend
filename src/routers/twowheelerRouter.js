@@ -13,9 +13,7 @@ const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
 const Twowheelervariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
-const {
-  getStandardCheckLists,
-} = require("../utils/dummy/getStandardCheckLists");
+const { getStandardCheckLists } = require("../utils/getStandardCheckLists");
 const e = require("express");
 const twowheelerRouter = express.Router();
 
@@ -96,24 +94,7 @@ twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
   }
 });
 
-//
-twowheelerRouter.get(
-  "/admin/getvehiclenumbers",
-  checkAuthentication,
-  async (req, res) => {
-    try {
-      const vn = req.params.vehiclenumber;
-      const data = await VehicleData.find({}).select("vehicleNumber");
-      res.status(200).json({
-        status: "Ok",
-        message: "vehicle numbers fetched successfully",
-        data,
-      });
-    } catch (err) {
-      res.status(404).json({ status: "Failed", message: err.message });
-    }
-  }
-);
+//add vehicle into the service
 twowheelerRouter.post(
   "/admin/insert/addnewvehicletoservice",
   checkAuthentication,
@@ -260,22 +241,5 @@ twowheelerRouter.post(
     }
   }
 );
-twowheelerRouter.get("/temp", async (req, res) => {
-  try {
-    //CUSTOMER:685e86ef01d82c6aa40733cb
-    const jsonobject = await VehicleData.findOne({
-      vehicleNumber: "KA31N8147",
-    })
-      .populate("variantId")
-      .populate("customerId")
-      .populate("serviceDataId");
-    res.status(200).json({
-      status: "Ok",
-      message: "Vehicle & customer information registered successfully...",
-      jsonobject,
-    });
-  } catch (err) {
-    res.json({ status: "Failed", message: err.message });
-  }
-});
+
 module.exports = twowheelerRouter;
