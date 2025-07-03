@@ -94,6 +94,22 @@ twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
   }
 });
 
+//get all vehicles numbers
+twowheelerRouter.get(
+  "/admin/getvehiclenumbers",
+  checkAuthentication,
+  async (req, res) => {
+    try {
+      const data = await VehicleData.find({}).select("vehicleNumber");
+      res
+        .status(200)
+        .json({ status: "Ok", message: "Variants fetched successfully", data });
+    } catch (err) {
+      res.status(401).json({ status: "Failed", message: err.message });
+    }
+  }
+);
+
 //add vehicle into the service
 twowheelerRouter.post(
   "/admin/insert/addnewvehicletoservice",
