@@ -118,35 +118,35 @@ twowheelerRouter.post(
     const jsonobject = req.body;
     try {
       const isvehiclenumberpresent = await VehicleData.findOne({
-        vehicleNumber: jsonobject?.result?.vehicleInfo?.vehicleNumber,
+        vehicleNumber: jsonobject?.vehicleInfo?.vehicleNumber.toUpperCase(),
       });
       if (isvehiclenumberpresent) {
         throw new Error(
-          `Vehicle with number:${jsonobject?.result?.vehicleInfo?.vehicleNumber} already serviced previously. Try searching in served vehicle list`
+          `Vehicle with number:${jsonobject?.vehicleInfo?.vehicleNumber} already serviced previously. Try searching in served vehicle list`
         );
       }
       const variantdetails = await Twowheelervariants.findOne({
-        variantName: jsonobject?.result?.vehicleInfo?.vehicleVariant,
+        variantName: jsonobject?.vehicleInfo?.vehicleVariant,
       });
       let customerInfo = new CustomerData({
-        customerName: jsonobject?.result?.customerInfo?.customerName,
-        primaryMobileNumber: jsonobject?.result?.customerInfo?.customerMobile,
-        preferredMobileNumber: jsonobject?.result?.customerInfo
-          ?.customerAltMobile
-          ? jsonobject?.result?.customerInfo?.customerAltMobile
-          : jsonobject?.result?.customerInfo?.customerMobile,
-        email: jsonobject?.result?.customerInfo?.customeremail
-          ? jsonobject?.result?.customerInfo?.customeremail
+        customerName: jsonobject?.customerInfo?.customerName,
+        primaryMobileNumber: jsonobject?.customerInfo?.customerMobile,
+        preferredMobileNumber: jsonobject?.customerInfo?.customerAltMobile
+          ? jsonobject?.customerInfo?.customerAltMobile
+          : jsonobject?.customerInfo?.customerMobile,
+        email: jsonobject?.customerInfo?.customeremail
+          ? jsonobject?.customerInfo?.customeremail
           : "empty@gmail.com",
-        address: jsonobject?.result?.customerInfo?.customeraddress
-          ? jsonobject?.result?.customerInfo?.customeraddress
+        address: jsonobject?.customerInfo?.customeraddress
+          ? jsonobject?.customerInfo?.customeraddress
           : "<Address not provided>",
       });
+      console.log(jsonobject);
       customerInfo = await customerInfo.save();
 
       //customer complaints
       let customerComplaintsinfo = new customerComplaints({
-        list: jsonobject?.result?.customerComplaintsInfo,
+        list: jsonobject?.customerComplaintsInfo,
       });
       customerComplaintsinfo = await customerComplaintsinfo.save();
 
@@ -203,28 +203,23 @@ twowheelerRouter.post(
         await StandardServicesCheckListinfo.save();
 
       //now create ServiceData
-      let exitdate = new Date(
-        jsonobject?.result?.vehicleInfo.vehicleServiceOutDate
-      );
+      let exitdate = new Date(jsonobject?.vehicleInfo.vehicleServiceOutDate);
       let servcelist = [];
       let nextservdate = new Date(exitdate).setDate(exitdate.getDate() + 50);
       servcelist.push({
-        kmDriven: parseInt(jsonobject?.result?.vehicleInfo.kmDriven),
+        kmDriven: parseInt(jsonobject?.vehicleInfo.kmDriven),
         dateOfVehicleEntry: new Date(
-          jsonobject?.result?.vehicleInfo.vehicleServiceInDate
+          jsonobject?.vehicleInfo.vehicleServiceInDate
         ),
         dateOfVehicleExit: new Date(
-          jsonobject?.result?.vehicleInfo.vehicleServiceOutDate
+          jsonobject?.vehicleInfo.vehicleServiceOutDate
         ),
-        kmForNextService:
-          parseInt(jsonobject?.result?.vehicleInfo.kmDriven) + 2500,
+        kmForNextService: parseInt(jsonobject?.vehicleInfo.kmDriven) + 2500,
         dateForNextService: nextservdate,
         serviceSequenceNumber: 1,
         serviceStatus: 0,
         isLatestService: true,
-        fuelPercentBeforeService: parseInt(
-          jsonobject?.result?.vehicleInfo.fuelPresent
-        ),
+        fuelPercentBeforeService: parseInt(jsonobject?.vehicleInfo.fuelPresent),
         afterServiceComplaintsId: afterServiceComplaintsinfo._id,
         customerComplaintsId: customerComplaintsinfo._id,
         mechanicObservationsId: mechanicObservationsinfo._id,
@@ -237,7 +232,7 @@ twowheelerRouter.post(
       });
       serviceDatainfo = await serviceDatainfo.save();
       let vehicleInfo = new VehicleData({
-        vehicleNumber: jsonobject?.result?.vehicleInfo?.vehicleNumber,
+        vehicleNumber: jsonobject?.vehicleInfo?.vehicleNumber,
         variantId: variantdetails._id,
         customerId: customerInfo._id,
         serviceDataId: serviceDatainfo._id,
@@ -249,7 +244,7 @@ twowheelerRouter.post(
         data: vehicleInfo,
       });
     } catch (err) {
-      res.json({
+      res.status(403).json({
         status: "Failed",
         message: err.message,
         yourdata: jsonobject,
