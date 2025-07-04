@@ -101,6 +101,9 @@ twowheelerRouter.get(
   async (req, res) => {
     try {
       const data = await VehicleData.find({}).select("vehicleNumber");
+      if (!data) {
+        throw new Error("Error");
+      }
       res
         .status(200)
         .json({ status: "Ok", message: "Variants fetched successfully", data });
@@ -249,6 +252,29 @@ twowheelerRouter.post(
         message: err.message,
         data: jsonobject,
       });
+    }
+  }
+);
+
+//edit vehicle in service
+twowheelerRouter.get(
+  "/admin/edit/editvehicleservice/:vehiclenumber",
+  checkAuthentication,
+  async (req, res) => {
+    const myvehiclenumber = req.params.vehiclenumber;
+    try {
+      const isvehicledataexists = await VehicleData.findOne({
+        vehicleNumber: myvehiclenumber,
+      });
+      if (!isvehicledataexists) {
+        //throw new Error("Vehicle number not found!");
+        const err = new Error("Vehicle not found!");
+        err.statusCode = 403; // Set your desired status code
+        throw new Error(err);
+      }
+      res.status(200).json({ status: "Ok", message: myvehiclenumber });
+    } catch (err) {
+      res.status(404).json({ status: "Failed", message: err.message });
     }
   }
 );

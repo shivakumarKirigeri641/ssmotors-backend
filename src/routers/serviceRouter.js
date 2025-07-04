@@ -26,9 +26,7 @@ serviceRouter.get(
         latestservice: item.serviceDataId.list.at(-1),
       }));
       data = data.sort(
-        (a, b) =>
-          new Date(b.latestService.dateOfVehicleEntry) -
-          new Date(a.latestService.dateOfVehicleEntry)
+        (a, b) => b.serviceSequenceNumber - a.serviceSequenceNumber
       );
       res.status(200).json({
         status: "Ok",
@@ -71,9 +69,7 @@ serviceRouter.get(
         }
       }
       data = data.sort(
-        (a, b) =>
-          new Date(b.latestService.dateOfVehicleEntry) -
-          new Date(a.latestService.dateOfVehicleEntry)
+        (a, b) => b.serviceSequenceNumber - a.serviceSequenceNumber
       );
       res.status(200).json({
         status: "Ok",
