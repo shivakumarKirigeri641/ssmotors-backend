@@ -85,7 +85,7 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
 //get all vehicles
 twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
   try {
-    const data = await twowheelerVariants.collection.distinct("variantName");
+    const data = await twowheelerVariants.find({}).select("_id variantName");
     res
       .status(200)
       .json({ status: "Ok", message: "Variants fetched successfully", data });
@@ -118,35 +118,32 @@ twowheelerRouter.post(
     const jsonobject = req.body;
     try {
       const isvehiclenumberpresent = await VehicleData.findOne({
-        vehicleNumber: jsonobject?.vehicleInfo?.vehicleNumber.toUpperCase(),
+        vehicleNumber:
+          jsonobject?.result?.vehicleInfo?.vehicleNumber.toUpperCase(),
       });
       if (isvehiclenumberpresent) {
         throw new Error(
-          `Vehicle with number:${jsonobject?.vehicleInfo?.vehicleNumber} already serviced previously. Try searching in served vehicle list`
+          `Vehicle with number:${jsonobject?.result?.vehicleInfo?.vehicleNumber} already serviced previously. Try searching in served vehicle list`
         );
       }
-      const variantdetails = await Twowheelervariants.findOne({
-        variantName: jsonobject?.vehicleInfo?.vehicleVariant,
-      });
       let customerInfo = new CustomerData({
-        customerName: jsonobject?.customerInfo?.customerName,
-        primaryMobileNumber: jsonobject?.customerInfo?.customerMobile,
-        preferredMobileNumber: jsonobject?.customerInfo?.customerAltMobile
-          ? jsonobject?.customerInfo?.customerAltMobile
-          : jsonobject?.customerInfo?.customerMobile,
-        email: jsonobject?.customerInfo?.customeremail
-          ? jsonobject?.customerInfo?.customeremail
+        customerName: jsonobject?.result?.customerInfo?.customerName,
+        primaryMobileNumber: jsonobject?.result?.customerInfo?.customerMobile,
+        preferredMobileNumber: jsonobject?.result?.customerInfo
+          ?.customerAltMobile
+          ? jsonobject?.result?.customerInfo?.customerAltMobile
+          : jsonobject?.result?.customerInfo?.customerMobile,
+        email: jsonobject?.result?.customerInfo?.customeremail
+          ? jsonobject?.result?.customerInfo?.customeremail
           : "empty@gmail.com",
-        address: jsonobject?.customerInfo?.customeraddress
-          ? jsonobject?.customerInfo?.customeraddress
+        address: jsonobject?.result?.customerInfo?.customeraddress
+          ? jsonobject?.result?.customerInfo?.customeraddress
           : "<Address not provided>",
       });
-      console.log(jsonobject);
       customerInfo = await customerInfo.save();
-
       //customer complaints
       let customerComplaintsinfo = new customerComplaints({
-        list: jsonobject?.customerComplaintsInfo,
+        list: jsonobject?.result?.customerComplaintsInfo,
       });
       customerComplaintsinfo = await customerComplaintsinfo.save();
 
@@ -194,32 +191,35 @@ twowheelerRouter.post(
         ],
       });
       servicePaymentsinfo = await servicePaymentsinfo.save();
-
       //StandardServicesCheckList
       let StandardServicesCheckListinfo = new StandardServicesCheckList({
         list: getStandardCheckLists(),
       });
       StandardServicesCheckListinfo =
         await StandardServicesCheckListinfo.save();
-
       //now create ServiceData
-      let exitdate = new Date(jsonobject?.vehicleInfo.vehicleServiceOutDate);
+      let exitdate = new Date(
+        jsonobject?.result?.vehicleInfo?.vehicleServiceOutDate
+      );
       let servcelist = [];
       let nextservdate = new Date(exitdate).setDate(exitdate.getDate() + 50);
       servcelist.push({
-        kmDriven: parseInt(jsonobject?.vehicleInfo.kmDriven),
+        kmDriven: parseInt(jsonobject?.result?.vehicleInfo?.kmDriven),
         dateOfVehicleEntry: new Date(
-          jsonobject?.vehicleInfo.vehicleServiceInDate
+          jsonobject?.result?.vehicleInfo?.vehicleServiceInDate
         ),
         dateOfVehicleExit: new Date(
-          jsonobject?.vehicleInfo.vehicleServiceOutDate
+          jsonobject?.result?.vehicleInfo?.vehicleServiceOutDate
         ),
-        kmForNextService: parseInt(jsonobject?.vehicleInfo.kmDriven) + 2500,
+        kmForNextService:
+          parseInt(jsonobject?.result?.vehicleInfo?.kmDriven) + 2500,
         dateForNextService: nextservdate,
         serviceSequenceNumber: 1,
         serviceStatus: 0,
         isLatestService: true,
-        fuelPercentBeforeService: parseInt(jsonobject?.vehicleInfo.fuelPresent),
+        fuelPercentBeforeService: parseInt(
+          jsonobject?.result?.vehicleInfo?.fuelPresent
+        ),
         afterServiceComplaintsId: afterServiceComplaintsinfo._id,
         customerComplaintsId: customerComplaintsinfo._id,
         mechanicObservationsId: mechanicObservationsinfo._id,
@@ -232,8 +232,8 @@ twowheelerRouter.post(
       });
       serviceDatainfo = await serviceDatainfo.save();
       let vehicleInfo = new VehicleData({
-        vehicleNumber: jsonobject?.vehicleInfo?.vehicleNumber,
-        variantId: variantdetails._id,
+        vehicleNumber: jsonobject?.result?.vehicleInfo?.vehicleNumber,
+        variantId: jsonobject?.result?.vehicleInfo?.vehicleVariant,
         customerId: customerInfo._id,
         serviceDataId: serviceDatainfo._id,
       });
@@ -247,10 +247,22 @@ twowheelerRouter.post(
       res.status(403).json({
         status: "Failed",
         message: err.message,
-        yourdata: jsonobject,
+        data: jsonobject,
       });
     }
   }
 );
-
+//get all vehicles numbers
+twowheelerRouter.get("/temp", async (req, res) => {
+  try {
+    const data = await VehicleData.findOne({
+      vehicleNumber: "KA01AG4104",
+    }).populate("serviceDataId");
+    res
+      .status(200)
+      .json({ status: "Ok", message: "Variants fetched successfully", data });
+  } catch (err) {
+    res.status(401).json({ status: "Failed", message: err.message });
+  }
+});
 module.exports = twowheelerRouter;
