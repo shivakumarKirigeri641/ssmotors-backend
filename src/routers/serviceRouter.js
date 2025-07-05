@@ -25,6 +25,9 @@ serviceRouter.get(
         customerInfo: item.customerId,
         latestservice: item.serviceDataId.list.at(-1),
       }));
+      data = data.sort(
+        (a, b) => b.serviceSequenceNumber - a.serviceSequenceNumber
+      );
       res.status(200).json({
         status: "Ok",
         servedVehicleInfos,
@@ -48,6 +51,7 @@ serviceRouter.get(
         .populate("customerId")
         .populate("serviceDataId");
       for (let i = 0; i < servedVehicleInfos.length; i++) {
+        console.log(i);
         if (
           servedVehicleInfos[i].serviceDataId.list[
             servedVehicleInfos[i].serviceDataId.list.length - 1
@@ -64,6 +68,9 @@ serviceRouter.get(
           });
         }
       }
+      data = data.sort(
+        (a, b) => b.serviceSequenceNumber - a.serviceSequenceNumber
+      );
       res.status(200).json({
         status: "Ok",
         data,

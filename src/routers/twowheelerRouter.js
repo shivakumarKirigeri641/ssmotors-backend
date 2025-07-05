@@ -1,11 +1,20 @@
 const express = require("express");
+const ServiceData = require("../models/serviceData");
 const VehicleData = require("../models/vehicleData");
+const servicePayments = require("../models/servicePayments");
+const customerComplaints = require("../models/customerComplaints");
+const partsAndAccessories = require("../models/partsAndAccessories");
+const afterServiceComplaints = require("../models/afterServiceComplaints");
+const mechanicObservations = require("../models/mechanicObservations");
+const StandardServicesCheckList = require("../models/standardServicesCheckList");
 const CustomerData = require("../models/customerData");
 const TwowheelerModels = require("../models/TwowheelerModels");
 const TwowheelerBrands = require("../models/TwowheelerBrands");
 const twowheelerVariants = require("../models/twowheelervariants");
 const Twowheelervariants = require("../models/twowheelervariants");
 const checkAuthentication = require("./checkAuthentication");
+const { getStandardCheckLists } = require("../utils/getStandardCheckLists");
+const e = require("express");
 const twowheelerRouter = express.Router();
 
 //get brands
@@ -72,9 +81,11 @@ twowheelerRouter.get("/getvariants", checkAuthentication, async (req, res) => {
     res.status(401).json({ status: "Failed", message: err.message });
   }
 });
+
+//get all vehicles
 twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
   try {
-    const data = await twowheelerVariants.collection.distinct("variantName");
+    const data = await twowheelerVariants.find({}).select("_id variantName");
     res
       .status(200)
       .json({ status: "Ok", message: "Variants fetched successfully", data });
@@ -83,46 +94,201 @@ twowheelerRouter.get("/allvehicles", checkAuthentication, async (req, res) => {
   }
 });
 
-twowheelerRouter.post(
-  "/addnewvehicletoservice",
+//get all vehicles numbers
+twowheelerRouter.get(
+  "/admin/getvehiclenumbers",
   checkAuthentication,
   async (req, res) => {
     try {
-      const jsonobject = req.body;
-      const isvehiclenumberpresent = await VehicleData.findOne({
-        vehicleNumber: jsonobject.vehicleNumber,
-      });
-      if (isvehiclenumberpresent) {
-        throw new Error(
-          `Vehicle with number:${jsonobject.vehicleNumber} already serviced previously. Try searching in served vehicle list`
-        );
+      const data = await VehicleData.find({}).select("vehicleNumber");
+      if (!data) {
+        throw new Error("Error");
       }
-      const variantdetails = await Twowheelervariants.findOne({
-        variantName: jsonobject.variantName,
-      });
-      const customerInfo = new CustomerData({
-        customerName: jsonobject.customerName,
-        primaryMobileNumber: jsonobject.mobile1,
-        preferredMobileNumber: jsonobject.mobile2,
-        email: jsonobject.email,
-        address: jsonobject.address,
-      });
-      const customerresult = await customerInfo.save();
-      const vehicleinfo = new VehicleData({
-        vehicleNumber: jsonobject.vehicleNumber,
-        variantId: variantdetails._id,
-        customerId: customerresult._id,
-      });
-      const resultvehicleinfo = await vehicleinfo.save();
-      res.status(200).json({
-        status: "Ok",
-        message: "Vehicle & customer information registered successfully...",
-        customerresult,
-        resultvehicleinfo,
-      });
+      res
+        .status(200)
+        .json({ status: "Ok", message: "Variants fetched successfully", data });
     } catch (err) {
-      res.json({ status: "Failed", message: err.message });
+      res.status(401).json({ status: "Failed", message: err.message });
     }
   }
 );
+
+//add vehicle into the service
+twowheelerRouter.post(
+  "/admin/insert/addnewvehicletoservice",
+  checkAuthentication,
+  async (req, res) => {
+    const jsonobject = req.body;
+    try {
+      const isvehiclenumberpresent = await VehicleData.findOne({
+        vehicleNumber:
+          jsonobject?.result?.vehicleInfo?.vehicleNumber.toUpperCase(),
+      });
+      if (isvehiclenumberpresent) {
+        throw new Error(
+          `Vehicle with number:${jsonobject?.result?.vehicleInfo?.vehicleNumber} already serviced previously. Try searching in served vehicle list`
+        );
+      }
+      let customerInfo = new CustomerData({
+        customerName: jsonobject?.result?.customerInfo?.customerName,
+        primaryMobileNumber: jsonobject?.result?.customerInfo?.customerMobile,
+        preferredMobileNumber: jsonobject?.result?.customerInfo
+          ?.customerAltMobile
+          ? jsonobject?.result?.customerInfo?.customerAltMobile
+          : jsonobject?.result?.customerInfo?.customerMobile,
+        email: jsonobject?.result?.customerInfo?.customeremail
+          ? jsonobject?.result?.customerInfo?.customeremail
+          : "empty@gmail.com",
+        address: jsonobject?.result?.customerInfo?.customeraddress
+          ? jsonobject?.result?.customerInfo?.customeraddress
+          : "<Address not provided>",
+      });
+      customerInfo = await customerInfo.save();
+      //customer complaints
+      let customerComplaintsinfo = new customerComplaints({
+        list: jsonobject?.result?.customerComplaintsInfo,
+      });
+      customerComplaintsinfo = await customerComplaintsinfo.save();
+
+      //customer complaints
+      let afterServiceComplaintsinfo = new afterServiceComplaints({
+        list: [],
+      });
+      afterServiceComplaintsinfo = await afterServiceComplaintsinfo.save();
+
+      //mech obs
+      let mechanicObservationsinfo = new mechanicObservations({
+        list: [],
+      });
+      mechanicObservationsinfo = await mechanicObservationsinfo.save();
+
+      //partsAndAccessories
+      let partsAndAccessoriesinfo = new partsAndAccessories({
+        list: [],
+      });
+      partsAndAccessoriesinfo = await partsAndAccessoriesinfo.save();
+
+      //servicePayments
+      let servicePaymentsinfo = new servicePayments({
+        list: [
+          {
+            title: "Wash",
+            description: "Water wash internal/external",
+            isAmountPayable: true,
+            amount: 350,
+          },
+          {
+            title: "Labour charge",
+            description: "Default servicing charges applied",
+            isAmountPayable: true,
+            amount: 500,
+          },
+          {
+            title: "Engine oil",
+            description: "Castrol engine oil replacement",
+            isAmountPayable: true,
+            amount: 720,
+            cGST: 18,
+            sGST: 18,
+          },
+        ],
+      });
+      servicePaymentsinfo = await servicePaymentsinfo.save();
+      //StandardServicesCheckList
+      let StandardServicesCheckListinfo = new StandardServicesCheckList({
+        list: getStandardCheckLists(),
+      });
+      StandardServicesCheckListinfo =
+        await StandardServicesCheckListinfo.save();
+      //now create ServiceData
+      let exitdate = new Date(
+        jsonobject?.result?.vehicleInfo?.vehicleServiceOutDate
+      );
+      let servcelist = [];
+      let nextservdate = new Date(exitdate).setDate(exitdate.getDate() + 50);
+      servcelist.push({
+        kmDriven: parseInt(jsonobject?.result?.vehicleInfo?.kmDriven),
+        dateOfVehicleEntry: new Date(
+          jsonobject?.result?.vehicleInfo?.vehicleServiceInDate
+        ),
+        dateOfVehicleExit: new Date(
+          jsonobject?.result?.vehicleInfo?.vehicleServiceOutDate
+        ),
+        kmForNextService:
+          parseInt(jsonobject?.result?.vehicleInfo?.kmDriven) + 2500,
+        dateForNextService: nextservdate,
+        serviceSequenceNumber: 1,
+        serviceStatus: 0,
+        isLatestService: true,
+        fuelPercentBeforeService: parseInt(
+          jsonobject?.result?.vehicleInfo?.fuelPresent
+        ),
+        afterServiceComplaintsId: afterServiceComplaintsinfo._id,
+        customerComplaintsId: customerComplaintsinfo._id,
+        mechanicObservationsId: mechanicObservationsinfo._id,
+        partsAndAccessoriesId: partsAndAccessoriesinfo._id,
+        servicePaymentsId: servicePaymentsinfo._id,
+        StandardServicesCheckListId: StandardServicesCheckListinfo._id,
+      });
+      let serviceDatainfo = new ServiceData({
+        list: servcelist,
+      });
+      serviceDatainfo = await serviceDatainfo.save();
+      let vehicleInfo = new VehicleData({
+        vehicleNumber: jsonobject?.result?.vehicleInfo?.vehicleNumber,
+        variantId: jsonobject?.result?.vehicleInfo?.vehicleVariant,
+        customerId: customerInfo._id,
+        serviceDataId: serviceDatainfo._id,
+      });
+      vehicleInfo = await vehicleInfo.save();
+      res.status(200).json({
+        status: "Ok",
+        message: "Vehicle & customer information registered successfully...",
+        data: vehicleInfo,
+      });
+    } catch (err) {
+      res.status(403).json({
+        status: "Failed",
+        message: err.message,
+        data: jsonobject,
+      });
+    }
+  }
+);
+
+//edit vehicle in service
+twowheelerRouter.get(
+  "/admin/edit/editvehicleservice/:vehiclenumber",
+  checkAuthentication,
+  async (req, res) => {
+    const myvehiclenumber = req.params.vehiclenumber;
+    try {
+      const isvehicledataexists = await VehicleData.findOne({
+        vehicleNumber: myvehiclenumber,
+      });
+      if (!isvehicledataexists) {
+        //throw new Error("Vehicle number not found!");
+        const err = new Error("Vehicle not found!");
+        err.statusCode = 403; // Set your desired status code
+        throw new Error(err);
+      }
+      res.status(200).json({ status: "Ok", message: myvehiclenumber });
+    } catch (err) {
+      res.status(404).json({ status: "Failed", message: err.message });
+    }
+  }
+);
+//get all vehicles numbers
+twowheelerRouter.get("/temp", async (req, res) => {
+  try {
+    const data = await VehicleData.findOne({
+      vehicleNumber: "KA01AG4104",
+    }).populate("serviceDataId");
+    res
+      .status(200)
+      .json({ status: "Ok", message: "Variants fetched successfully", data });
+  } catch (err) {
+    res.status(401).json({ status: "Failed", message: err.message });
+  }
+});
 module.exports = twowheelerRouter;
